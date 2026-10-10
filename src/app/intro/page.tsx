@@ -52,10 +52,10 @@ export default function IntroPage() {
   };
 
   return (
-    <section className="page" style={{ maxWidth: 900, margin: '0 auto' }}>
+    <section className="page" style={{ maxWidth: 1000, margin: '0 auto' }}>
       <div className="page-head">
-        <PageTitle>INTRO</PageTitle>
-        <EditableDesc k="intro-desc" def="이 홈에 대한 소개" />
+        <PageTitle>It's Me!</PageTitle>
+        <EditableDesc k="intro-desc" def="끝까지 읽어 주세요 ♡" />
         {isAdmin && (
           <div className="head-actions">
             {editing ? (
