@@ -93,6 +93,8 @@ function ThreadsPageInner() {
   const [cat, setCat] = useState('all');
   const [q, setQ] = useState('');
   const [selId, setSelId] = useState<string | null>(null);
+  const [sortMode, setSortMode] = useState<'last' | 'new' | 'old'>('last');
+  const SORT_LABEL = { last: '최근글순', new: '생성순', old: '오래된순' };
 
   // 기본 보기 — 환경설정값 로드 후 1회 적용 (v1.8 확정)
   useEffect(() => {
@@ -104,8 +106,10 @@ function ThreadsPageInner() {
     .filter(w => isAdmin || w.visibility === 'public' || (w.visibility === 'member' && user))
     .filter(w => cat === 'all' || w.catId === cat)
     .filter(w => !q || w.title.includes(q))
-    .sort((a, b) => lastDate(b).localeCompare(lastDate(a))), [works, isAdmin, user, cat, q]);
-
+    .sort((a, b) =>
+      sortMode === 'last' ? lastDate(b).localeCompare(lastDate(a))
+      : sortMode === 'new' ? b.created.localeCompare(a.created)
+      : a.created.localeCompare(b.created)), [works, isAdmin, user, cat, q, sortMode]);
   const sel = visible.find(w => w.id === selId) ?? visible[0];
 
   // 댓글 — 글과 따로 저장 (v2.0 사용자 요청, 게시판·로드비와 같은 컬렉션을 target으로 나눠 쓴다)
@@ -281,6 +285,10 @@ function ThreadsPageInner() {
             <button className={view === 'thread' ? 'on' : ''} onClick={() => setView('thread')}>타래</button>
             <button className={view === 'list' ? 'on' : ''} onClick={() => setView('list')}>리스트</button>
           </div>
+          <button className="btn btn-ghost" style={{ whiteSpace: 'nowrap' }}
+            onClick={() => setSortMode(m => m === 'last' ? 'new' : m === 'new' ? 'old' : 'last')}>
+            {SORT_LABEL[sortMode]}
+          </button>
           <SearchBar onSearch={setQ} />
           {isAdmin && (
             <button className="btn btn-dark" style={{ whiteSpace: 'nowrap' }}
