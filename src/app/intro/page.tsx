@@ -52,7 +52,7 @@ export default function IntroPage() {
   };
 
   return (
-    <section className="page" style={{ maxWidth: 760, margin: '0 auto' }}>
+    <section className="page" style={{ maxWidth: 900, margin: '0 auto' }}>
       <div className="page-head">
         <PageTitle>INTRO</PageTitle>
         <EditableDesc k="intro-desc" def="이 홈에 대한 소개" />
