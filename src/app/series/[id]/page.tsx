@@ -52,6 +52,8 @@ export default function SeriesDetailPage() {
                 <button className="btn btn-dark" style={{ padding: '3px 10px', fontSize: 10.5 }}
                   onClick={() => router.push(`/series/${w.id}/new`)}>＋ NEW POST</button>
                 <button className="btn btn-ghost" style={{ padding: '3px 10px', fontSize: 10.5 }}
+                  onClick={() => router.push(`/series/${w.id}/edit`)}>EDIT</button>
+                <button className="btn btn-ghost" style={{ padding: '3px 10px', fontSize: 10.5 }}
                   onClick={removeSeries}>DELETE</button>
               </div>
             )}
