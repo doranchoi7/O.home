@@ -56,7 +56,9 @@ export default function SeriesPostPage() {
         </div>
 
         {isAdmin && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6, marginTop: 16 }}>
+            <button className="btn btn-ghost" style={{ padding: '3px 10px', fontSize: 10.5 }}
+              onClick={() => router.push(`/series/${w.id}/${p.id}/edit`)}>EDIT</button>
             <button className="btn btn-ghost" style={{ padding: '3px 10px', fontSize: 10.5 }}
               onClick={removePost}>DELETE</button>
           </div>
