@@ -1,10 +1,44 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
-const STICKERS = ['/stickers/1.png', '/stickers/2.png', '/stickers/3.png'];
-const COUNT = 10;
+const STICKERS = ['/stickers/1.png', '/stickers/2.png'];
+const COUNT = 14;
 const W = 200, H = 200, SIZE = 44;
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+
+function makeSticker(img: HTMLImageElement, size: number) {
+  const pad = 10, o = 3;
+  const dpr = window.devicePixelRatio || 1;
+  const r = size / Math.max(img.width, img.height);
+  const w = Math.round(img.width * r), h = Math.round(img.height * r);
+  const cw = w + pad * 2, ch = h + pad * 2;
+
+  // 테두리: 이미지를 사방으로 겹쳐 그린 뒤 반투명 흰색으로 칠함
+  const t = document.createElement('canvas');
+  t.width = cw * dpr; t.height = ch * dpr;
+  const tx = t.getContext('2d')!;
+  tx.scale(dpr, dpr);
+  for (let a = 0; a < 16; a++) {
+    const ang = (a / 16) * Math.PI * 2;
+    tx.drawImage(img, pad + Math.cos(ang) * o, pad + Math.sin(ang) * o, w, h);
+  }
+  tx.globalCompositeOperation = 'source-in';
+  tx.fillStyle = 'rgba(255,255,255,0.75)';
+  tx.fillRect(0, 0, cw, ch);
+
+  // 테두리에 그림자를 입히고 그 위에 원본 그림
+  const c = document.createElement('canvas');
+  c.width = cw * dpr; c.height = ch * dpr;
+  const x = c.getContext('2d')!;
+  x.shadowColor = 'rgba(160,110,130,0.35)';
+  x.shadowBlur = 6 * dpr;
+  x.shadowOffsetY = 2 * dpr;
+  x.drawImage(t, 0, 0);
+  x.shadowColor = 'transparent';
+  x.scale(dpr, dpr);
+  x.drawImage(img, pad, pad, w, h);
+  return { canvas: c, w: cw, h: ch };
+}
 
 export default function Shaker() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -83,16 +117,17 @@ export default function Shaker() {
         Bodies.rectangle(W + t / 2, H / 2, t, H * 2, { isStatic: true }),
       ]);
 
-      const items: { body: any; img: HTMLImageElement }[] = [];
+      const sprites = imgs.map((im) => makeSticker(im, SIZE));
+      const items: { body: any; sp: { canvas: HTMLCanvasElement; w: number; h: number } }[] = [];
       for (let i = 0; i < COUNT; i++) {
-        const img = imgs[i % imgs.length];
+        const sp = sprites[i % sprites.length];
         const body = Bodies.circle(
           SIZE / 2 + Math.random() * (W - SIZE),
           Math.random() * (H / 2),
           SIZE * 0.42,
           { restitution: 0.2, friction: 0.6, frictionAir: 0.03 }
         );
-        items.push({ body, img });
+        items.push({ body, sp });
       }
       Composite.add(engine.world, items.map((i) => i.body));
       bodiesRef.current = items.map((i) => i.body);
@@ -107,13 +142,11 @@ export default function Shaker() {
       const loop = () => {
         Engine.update(engine, 1000 / 60);
         ctx.clearRect(0, 0, W, H);
-        items.forEach(({ body, img }) => {
-          const r = SIZE / Math.max(img.width, img.height);
-          const w = img.width * r, h = img.height * r;
+        items.forEach(({ body, sp }) => {
           ctx.save();
           ctx.translate(body.position.x, body.position.y);
           ctx.rotate(body.angle);
-          ctx.drawImage(img, -w / 2, -h / 2, w, h);
+          ctx.drawImage(sp.canvas, -sp.w / 2, -sp.h / 2, sp.w, sp.h);
           ctx.restore();
         });
         raf = requestAnimationFrame(loop);
