@@ -3,7 +3,8 @@ import React, { useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useLocalList } from '@/lib/postStore';
-import { SeriesWork, SERIES_KEY } from '@/lib/seriesStore';
+import { SeriesWork, SERIES_KEY, useSeriesSettings, seriesCats } from '@/lib/seriesStore';
+import { MAIN_SEC } from '@/lib/sectionStore';
 import { putBlob, useBlobUrl } from '@/lib/blobStore';
 import { CropEditor, CropImg, CropValue } from '@/components/ui/CropEditor';
 import { PageTitle } from '@/components/ui/PageText';
@@ -15,6 +16,9 @@ function EditForm({ w, works, setWorks }: {
 }) {
   const router = useRouter();
   const toast = useToast();
+  const [settings] = useSeriesSettings();
+  const cats = seriesCats(settings, w.secId ?? MAIN_SEC);
+  const [catId, setCatId] = useState(w.catId ?? '');
   const [title, setTitle] = useState(w.title);
   const [author, setAuthor] = useState(w.author ?? '');
   const [vis, setVis] = useState<SeriesWork['visibility']>(w.visibility);
@@ -33,6 +37,7 @@ function EditForm({ w, works, setWorks }: {
       ...x,
       title: title.trim(),
       author: author.trim() || undefined,
+      catId: catId || undefined,
       visibility: vis,
       posterId,
       posterCrop: crop,
@@ -53,6 +58,15 @@ function EditForm({ w, works, setWorks }: {
             <KLabel>Author (optional)</KLabel>
             <KInput value={author} onChange={e => setAuthor(e.target.value)} />
           </div>
+          
+          {cats.length > 0 && (
+            <div>
+              <KLabel>Category</KLabel>
+              <KSelect minWidth={130} value={catId} onChange={setCatId}
+                options={[{ value: '', label: '분류 없음' }, ...cats.map(c => ({ value: c.id, label: c.label }))]} />
+            </div>
+          )}
+          
           <div>
             <KLabel>Visibility</KLabel>
             <KSelect minWidth={130} value={vis} onChange={v => setVis(v as SeriesWork['visibility'])}
