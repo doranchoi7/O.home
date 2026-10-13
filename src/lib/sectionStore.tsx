@@ -20,7 +20,8 @@ import { getRawSetting, setSetting } from './settingStore';
 import { newId } from './postStore';
 
 export type SectionKind =
-  | 'gallery' | 'roadview' | 'trpg' | 'dotori' | 'playlog' | 'comm' | 'diary' | 'series' | 'threads' | 'sched' | 'chars';
+  | 'gallery' | 'roadview' | 'trpg' | 'dotori' | 'playlog' | 'comm' | 'diary' | 'series' | 'threads' | 'sched'   | 'chars'
+  | 'twitter' | 'lck' | 'couple' | 'oc' | 'pushoong' | 'kakaotalk' | 'style';
 
 /** 섹션 종류별 기본 정보 — 설정 탭 이름과 페이지 주소 */
 export const SECTION_META: Record<SectionKind, { label: string; href: string; defName: string }> = {
@@ -35,6 +36,13 @@ export const SECTION_META: Record<SectionKind, { label: string; href: string; de
   threads:  { label: '감상타래',  href: '/threads',  defName: '감상타래' },
   sched:    { label: '스케줄러',  href: '/cal',      defName: '스케줄러' },
   chars:    { label: '캐릭터',    href: '/chars',    defName: '캐릭터' },
+  twitter:   { label: '트위터',        href: '/twitter',   defName: '트위터' },
+  lck:       { label: 'LCK 경기 기록', href: '/lck',       defName: 'LCK 경기 기록' },
+  couple:    { label: '커플 다이어리', href: '/couple',    defName: '커플 다이어리' },
+  oc:        { label: '자캐 목록',     href: '/oc',        defName: '자캐 목록' },
+  pushoong:  { label: '푸슝 백업',     href: '/pushoong',  defName: '푸슝 백업' },
+  kakaotalk: { label: '카톡 백업',     href: '/kakaotalk', defName: '카톡 백업' },
+  style:     { label: '게임 코디 백업', href: '/style',    defName: '게임 코디 백업' },
 };
 
 export const SECTION_KINDS = Object.keys(SECTION_META) as SectionKind[];
