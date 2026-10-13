@@ -2,7 +2,8 @@
 import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalList, newId } from '@/lib/postStore';
-import { SeriesWork, SERIES_KEY } from '@/lib/seriesStore';
+import { SeriesWork, SERIES_KEY, useSeriesSettings, seriesCats } from '@/lib/seriesStore';
+import { useSectionParam, secStamp, secQuery } from '@/lib/sectionStore';
 import { putBlob } from '@/lib/blobStore';
 import { CropEditor, CropImg, CropValue } from '@/components/ui/CropEditor';
 import { KInput, KSelect, KLabel } from '@/components/ui/Kit';
@@ -14,6 +15,10 @@ export function SeriesForm() {
   const router = useRouter();
   const toast = useToast();
   const [works, setWorks] = useLocalList<SeriesWork>(SERIES_KEY, []);
+  const sec = useSectionParam('series');
+  const [settings] = useSeriesSettings();
+  const cats = seriesCats(settings, sec.id);
+  const [catId, setCatId] = useState('');
 
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
@@ -31,6 +36,7 @@ export function SeriesForm() {
       id: newId(),
       title: title.trim(),
       author: author.trim() || undefined,
+      catId: catId || undefined,
       visibility: vis,
       posterId,
       posterCrop: crop,
@@ -38,9 +44,9 @@ export function SeriesForm() {
       created: new Date().toISOString(),
       posts: [],
     };
-    setWorks([w, ...works]);
+    setWorks([{ ...w, ...secStamp(sec.id) }, ...works]);
     toast('시리즈가 만들어졌습니다');
-    router.push('/series');
+    router.push('/series' + secQuery('series', sec.id));
   };
 
   return (
@@ -55,6 +61,15 @@ export function SeriesForm() {
             <KLabel>Author (optional)</KLabel>
             <KInput value={author} onChange={e => setAuthor(e.target.value)} />
           </div>
+          
+          {cats.length > 0 && (
+            <div>
+              <KLabel>Category</KLabel>
+              <KSelect minWidth={130} value={catId} onChange={setCatId}
+                options={[{ value: '', label: '분류 없음' }, ...cats.map(c => ({ value: c.id, label: c.label }))]} />
+            </div>
+          )}
+          
           <div>
             <KLabel>Visibility</KLabel>
             <KSelect minWidth={130} value={vis} onChange={v => setVis(v as SeriesWork['visibility'])}
@@ -89,7 +104,7 @@ export function SeriesForm() {
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 6 }}>
-            <button className="btn btn-ghost" onClick={() => router.push('/series')}>CANCEL</button>
+            <button className="btn btn-ghost" onClick={() => router.push('/series' + secQuery('series', sec.id))}>CANCEL</button>
             <button className="btn btn-dark" onClick={save}>ADD</button>
           </div>
         </div>
