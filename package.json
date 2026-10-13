@@ -9,6 +9,7 @@
     "pack": "node scripts/pack.mjs"
   },
   "dependencies": {
+    "matter-js": "^0.20.0",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
     "@tiptap/extension-image": "^3.30.2",
@@ -24,6 +25,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@types/matter-js": "^0.19.8",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
