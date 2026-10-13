@@ -9,6 +9,8 @@ import { KInput, KLabel } from '@/components/ui/Kit';
 import { RichEditor } from '@/components/ui/RichEditor';
 import { useToast } from '@/components/ui/Toast';
 
+const toHtml = (t: string) =>
+  t.split('\n').map(l => `<p>${l.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</p>`).join('');
 function EditForm({ w, p, works, setWorks }: {
   w: SeriesWork; p: SeriesPost; works: SeriesWork[]; setWorks: (v: SeriesWork[]) => void;
 }) {
@@ -16,7 +18,7 @@ function EditForm({ w, p, works, setWorks }: {
   const toast = useToast();
   const [title, setTitle] = useState(p.title);
   const [date, setDate] = useState(p.date);
-  const [text, setText] = useState(p.text);
+  const [text, setText] = useState(p.rich ? p.text : toHtml(p.text));
 
   const save = () => {
     if (!title.trim()) { toast('글 제목을 입력해 주세요'); return; }
