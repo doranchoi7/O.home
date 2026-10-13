@@ -26,6 +26,13 @@ export const FEATURES: { href: string; label: string }[] = [
   { href: '/diary', label: '다이어리' },
   { href: '/threads', label: '감상타래' },
   { href: '/memo', label: '메모장' },
+  { href: '/twitter', label: '트위터' },
+  { href: '/lck', label: 'LCK 경기 기록' },
+  { href: '/couple', label: '커플 다이어리' },
+  { href: '/oc', label: '자캐 목록' },
+  { href: '/pushoong', label: '푸슝 백업' },
+  { href: '/kakaotalk', label: '카톡 백업' },
+  { href: '/style', label: '게임 코디 백업' },
   { href: '/guest', label: '방명록' },
   { href: '/intro', label: '소개' },
 ];
