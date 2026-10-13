@@ -28,10 +28,10 @@ export default function Shaker() {
     const src = ctx.createBufferSource();
     src.buffer = buf;
     const f = ctx.createBiquadFilter();
-    f.type = 'highpass';
-    f.frequency.value = 2500;
+    f.type = 'bandpass';
+    f.frequency.value = 1200;
     const g = ctx.createGain();
-    g.gain.value = 0.25;
+        g.gain.value = 0.18;
     src.connect(f).connect(g).connect(ctx.destination);
     src.start();
   };
@@ -43,10 +43,10 @@ export default function Shaker() {
     if (power < 2) return;
     bodiesRef.current.forEach((b) => {
       M.Body.setVelocity(b, {
-        x: clamp(b.velocity.x - dx * 0.6 + (Math.random() - 0.5) * 2, -35, 35),
-        y: clamp(b.velocity.y - dy * 0.6 + (Math.random() - 0.5) * 2, -35, 35),
+        x: clamp(b.velocity.x - dx * 0.25 + (Math.random() - 0.5) * 0.6, -14, 14),
+        y: clamp(b.velocity.y - dy * 0.25 + (Math.random() - 0.5) * 0.6, -14, 14),
       });
-      M.Body.setAngularVelocity(b, b.angularVelocity + (Math.random() - 0.5) * 0.1);
+      M.Body.setAngularVelocity(b, b.angularVelocity + (Math.random() - 0.5) * 0.03);
     });
     if (power > 8) playRattle();
   };
@@ -90,7 +90,7 @@ export default function Shaker() {
           SIZE / 2 + Math.random() * (W - SIZE),
           Math.random() * (H / 2),
           SIZE * 0.42,
-          { restitution: 0.5, friction: 0.3, frictionAir: 0.01 }
+          { restitution: 0.2, friction: 0.6, frictionAir: 0.03 }
         );
         items.push({ body, img });
       }
@@ -144,18 +144,27 @@ export default function Shaker() {
 
   return (
     <div
-      onPointerDown={onDown}
-      onPointerMove={onMove}
-      onPointerUp={onUp}
       style={{
         position: 'fixed', left: pos.x, top: pos.y, zIndex: 50,
-        background: '#f4f6fa', border: '2px solid #666', padding: 6,
-        boxShadow: '4px 4px 0 rgba(0,0,0,.25)', cursor: 'grab',
-        touchAction: 'none', userSelect: 'none',
+        background: 'rgba(255,255,255,.88)', borderRadius: 18, padding: 12,
+        boxShadow: '0 6px 20px rgba(243,199,215,.55)', userSelect: 'none',
       }}
     >
-      <div style={{ fontSize: 13, marginBottom: 6 }}>쉐이커</div>
-      <div style={{ border: '2px inset #999', background: '#fafafa' }}>
+      <div
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerUp={onUp}
+        style={{
+          cursor: 'grab', touchAction: 'none', padding: '2px 4px 10px',
+          fontSize: 11, fontWeight: 600, letterSpacing: 2, color: '#e7a4b7',
+        }}
+      >
+        SHAKER
+      </div>
+      <div style={{
+        borderRadius: 12, border: '1.5px solid #f3c7d7', overflow: 'hidden',
+        background: 'linear-gradient(180deg, #fff7fa, #f3c7d7)',
+      }}>
         <canvas ref={canvasRef} style={{ width: W, height: H, display: 'block' }} />
       </div>
     </div>
