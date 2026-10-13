@@ -46,28 +46,17 @@ export default function Shaker() {
 
   const matterRef = useRef<any>(null);
   const bodiesRef = useRef<any[]>([]);
-  const audioRef = useRef<AudioContext | null>(null);
-  const lastSound = useRef(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const stopTimer = useRef<any>(null);
   const drag = useRef<{ sx: number; sy: number; lx: number; ly: number } | null>(null);
 
   const playRattle = () => {
-    const now = performance.now();
-    if (now - lastSound.current < 90) return;
-    lastSound.current = now;
-    const ctx = (audioRef.current ??= new AudioContext());
-    const len = Math.floor(ctx.sampleRate * 0.08);
-    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    const f = ctx.createBiquadFilter();
-    f.type = 'bandpass';
-    f.frequency.value = 1200;
-    const g = ctx.createGain();
-        g.gain.value = 0.18;
-    src.connect(f).connect(g).connect(ctx.destination);
-    src.start();
+    const a = (audioRef.current ??= new Audio('/shake.mp3'));
+    a.loop = true;
+    a.volume = 0.6;
+    if (a.paused) a.play().catch(() => {});
+    clearTimeout(stopTimer.current);
+    stopTimer.current = setTimeout(() => a.pause(), 180);
   };
 
   const shake = (dx: number, dy: number) => {
