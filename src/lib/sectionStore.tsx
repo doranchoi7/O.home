@@ -20,7 +20,7 @@ import { getRawSetting, setSetting } from './settingStore';
 import { newId } from './postStore';
 
 export type SectionKind =
-  | 'gallery' | 'roadview' | 'trpg' | 'dotori' | 'playlog' | 'comm' | 'diary' | 'threads' | 'sched' | 'chars';
+  | 'gallery' | 'roadview' | 'trpg' | 'dotori' | 'playlog' | 'comm' | 'diary' | 'series' | 'threads' | 'sched' | 'chars';
 
 /** 섹션 종류별 기본 정보 — 설정 탭 이름과 페이지 주소 */
 export const SECTION_META: Record<SectionKind, { label: string; href: string; defName: string }> = {
@@ -31,6 +31,7 @@ export const SECTION_META: Record<SectionKind, { label: string; href: string; de
   playlog:  { label: '플레이기록', href: '/playlog', defName: '플레이기록' },
   comm:     { label: '커미션',    href: '/comm',     defName: '커미션' },
   diary:    { label: '다이어리',  href: '/diary',    defName: '다이어리' },
+  series:   { label: '시리즈',    href: '/series',   defName: '시리즈' },
   threads:  { label: '감상타래',  href: '/threads',  defName: '감상타래' },
   sched:    { label: '스케줄러',  href: '/cal',      defName: '스케줄러' },
   chars:    { label: '캐릭터',    href: '/chars',    defName: '캐릭터' },
