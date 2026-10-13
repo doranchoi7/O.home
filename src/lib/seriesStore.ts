@@ -8,6 +8,7 @@ export type SeriesPost = {
   id: string;
   title: string;
   text: string;
+  rich?: boolean; // true면 text가 에디터 HTML (없으면 예전 일반 글)
   images: string[];
   date: string; // 직접 입력한 날짜 (YYYY-MM-DD)
 };
