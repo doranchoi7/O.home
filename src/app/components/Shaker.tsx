@@ -23,16 +23,16 @@ function makeSticker(img: HTMLImageElement, size: number) {
     tx.drawImage(img, pad + Math.cos(ang) * o, pad + Math.sin(ang) * o, w, h);
   }
   tx.globalCompositeOperation = 'source-in';
-  tx.fillStyle = 'rgba(255,255,255,0.75)';
+  tx.fillStyle = 'rgba(255,255,255,0.38)';
   tx.fillRect(0, 0, cw, ch);
 
   // 테두리에 그림자를 입히고 그 위에 원본 그림
   const c = document.createElement('canvas');
   c.width = cw * dpr; c.height = ch * dpr;
   const x = c.getContext('2d')!;
-  x.shadowColor = 'rgba(160,110,130,0.35)';
-  x.shadowBlur = 6 * dpr;
-  x.shadowOffsetY = 2 * dpr;
+  x.shadowColor = 'rgba(160,110,130,0.45)';
+  x.shadowBlur = 2 * dpr;
+  x.shadowOffsetY = 1 * dpr;
   x.drawImage(t, 0, 0);
   x.shadowColor = 'transparent';
   x.scale(dpr, dpr);
