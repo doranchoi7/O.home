@@ -184,7 +184,7 @@ export default function Shaker() {
         SHAKER
       </div>
       <div style={{
-        borderRadius: 12, border: '1.5px solid #f3c7d7', overflow: 'hidden',
+        borderRadius: 12, border: '1.5px solid #f5d7e2', overflow: 'hidden',
         background: 'linear-gradient(180deg, #fffafc 0%, 55%, #f5d7e2 100%)',
       }}>
         <canvas ref={canvasRef} style={{ width: W, height: H, display: 'block' }} />
