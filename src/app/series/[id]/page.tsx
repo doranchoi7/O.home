@@ -6,6 +6,7 @@ import { useLocalList } from '@/lib/postStore';
 import { SeriesWork, SERIES_KEY } from '@/lib/seriesStore';
 import { CroppedBlobImg } from '@/components/ui/CropEditor';
 import { PageTitle } from '@/components/ui/PageText';
+import { useSectionTitle } from '@/lib/sectionStore';
 import { useConfirmDelete } from '@/components/ui/Modal';
 
 export default function SeriesDetailPage() {
@@ -14,13 +15,14 @@ export default function SeriesDetailPage() {
   const { isAdmin } = useAuth();
   const del = useConfirmDelete();
   const [works, setWorks, loaded] = useLocalList<SeriesWork>(SERIES_KEY, []);
+  const tt = useSectionTitle('series', works.find(x => x.id === id)?.secId, 'SERIES');
 
   if (!loaded) return <section className="page" />;
   const w = works.find(x => x.id === id);
   if (!w) {
     return (
       <section className="page">
-        <div className="page-head"><PageTitle href="/series">SERIES</PageTitle><p>시리즈를 찾을 수 없습니다</p></div>
+        <div className="page-head"><PageTitle href={tt.href}>{tt.title}</PageTitle><p>시리즈를 찾을 수 없습니다</p></div>
       </section>
     );
   }
@@ -31,12 +33,12 @@ export default function SeriesDetailPage() {
   const removeSeries = () =>
     del.ask(`「${w.title}」 시리즈를 삭제하시겠습니까?`, () => {
       setWorks(works.filter(x => x.id !== w.id));
-      router.push('/series');
+      router.push(tt.href);
     }, `시리즈의 글 ${w.posts.length}개도 함께 삭제됩니다.`);
 
   return (
     <section className="page">
-      <div className="page-head"><PageTitle href="/series">SERIES</PageTitle></div>
+      <div className="page-head"><PageTitle href={tt.href}>{tt.title}</PageTitle></div>
 
       <div className="panel" style={{ padding: 0, overflow: 'hidden' }}>
         <div className="thr-head">
