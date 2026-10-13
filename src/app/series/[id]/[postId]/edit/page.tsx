@@ -5,7 +5,8 @@ import { useAuth } from '@/lib/auth';
 import { useLocalList } from '@/lib/postStore';
 import { SeriesWork, SeriesPost, SERIES_KEY } from '@/lib/seriesStore';
 import { PageTitle } from '@/components/ui/PageText';
-import { KInput, KTextarea, KLabel } from '@/components/ui/Kit';
+import { KInput, KLabel } from '@/components/ui/Kit';
+import { RichEditor } from '@/components/ui/RichEditor';
 import { useToast } from '@/components/ui/Toast';
 
 function EditForm({ w, p, works, setWorks }: {
@@ -22,7 +23,7 @@ function EditForm({ w, p, works, setWorks }: {
     if (!text.trim()) { toast('내용을 입력해 주세요'); return; }
     setWorks(works.map(x => x.id === w.id ? {
       ...x,
-      posts: x.posts.map(y => y.id === p.id ? { ...y, title: title.trim(), text: text.trim(), date } : y),
+      posts: x.posts.map(y => y.id === p.id ? { ...y, title: title.trim(), text, rich: true, date } : y),
     } : x));
     toast('저장되었습니다');
     router.push(`/series/${w.id}/${p.id}`);
@@ -43,7 +44,7 @@ function EditForm({ w, p, works, setWorks }: {
         </div>
         <div>
           <KLabel>Text</KLabel>
-          <KTextarea style={{ minHeight: 360 }} value={text} onChange={e => setText(e.target.value)} />
+             <RichEditor value={text} onChange={setText} placeholder="내용을 작성하세요 — 이미지는 원하는 위치에 넣을 수 있어요" />
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
           <button className="btn btn-ghost" onClick={() => router.push(`/series/${w.id}/${p.id}`)}>CANCEL</button>
