@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const STICKERS = ['/stickers/1.png', '/stickers/2.png'];
 const COUNT = 14;
-const W = 200, H = 200, SIZE = 44;
+const W = 170, H = 170, SIZE = 38;
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
 function makeSticker(img: HTMLImageElement, size: number) {
@@ -168,7 +168,7 @@ export default function Shaker() {
     <div
       style={{
         position: 'fixed', left: pos.x, top: pos.y, zIndex: 50,
-        background: 'rgba(255,255,255,.88)', borderRadius: 18, padding: 12,
+        background: 'rgba(255,255,255,.88)', borderRadius: 18, padding: 14,
         boxShadow: '0 6px 20px rgba(243,199,215,.55)', userSelect: 'none',
       }}
     >
@@ -185,7 +185,7 @@ export default function Shaker() {
       </div>
       <div style={{
         borderRadius: 12, border: '1.5px solid #f3c7d7', overflow: 'hidden',
-        background: 'linear-gradient(180deg, #fff7fa, #f3c7d7)',
+        background: 'linear-gradient(180deg, #fffafc 0%, 55%, #f5d7e2 100%)',
       }}>
         <canvas ref={canvasRef} style={{ width: W, height: H, display: 'block' }} />
       </div>
