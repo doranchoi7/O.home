@@ -37,7 +37,7 @@ service cloud.firestore {
     function isContent(name) {
       return name in [
         'posts', 'guestbook', 'characters', 'relations', 'gallery', 'roadview',
-        'trpg_logs', 'trpg_log_bodies', 'trpg_chars', 'dotori', 'playlog', 'rp_rooms', 'threads',
+        'trpg_logs', 'trpg_log_bodies', 'trpg_chars', 'dotori', 'playlog', 'rp_rooms', 'threads', 'series',
         'diary', 'memos', 'commissions', 'applicants', 'moods', 'comments', 'qa_answers', 'rp_messages',
         'notifications'
       ];
