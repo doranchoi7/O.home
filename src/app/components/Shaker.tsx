@@ -53,7 +53,7 @@ export default function Shaker() {
   const playRattle = () => {
     const a = (audioRef.current ??= new Audio('/shake.mp3'));
     a.loop = true;
-    a.volume = 0.6;
+    a.volume = 1;
     if (a.paused) a.play().catch(() => {});
     clearTimeout(stopTimer.current);
     stopTimer.current = setTimeout(() => a.pause(), 180);
