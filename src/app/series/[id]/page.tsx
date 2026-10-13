@@ -40,7 +40,7 @@ export default function SeriesDetailPage() {
     <section className="page">
       <div className="page-head"><PageTitle href={tt.href}>{tt.title}</PageTitle></div>
 
-      <div className="panel" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="panel" style={{ maxWidth: 720, margin: '0 auto', padding: 0, overflow: 'hidden' }}>
         <div className="thr-head">
           <div className="poster">
             <CroppedBlobImg fileRef={w.posterId} crop={w.posterCrop} ph={w.ph} />
