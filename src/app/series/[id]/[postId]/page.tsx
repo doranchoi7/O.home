@@ -41,7 +41,15 @@ export default function SeriesPostPage() {
     <section className="page">
       <div className="page-head"><PageTitle href={`/series/${w.id}`}>{w.title}</PageTitle></div>
 
-      <div className="panel" style={{ maxWidth: 720, margin: '0 auto', padding: 30 }}>
+      <div className="panel" style={{ maxWidth: 720, margin: '0 auto', padding: 30, position: 'relative' }}>
+        {isAdmin && (
+          <div style={{ position: 'absolute', top: 18, right: 20, display: 'flex', gap: 6 }}>
+            <button className="btn btn-ghost" style={{ padding: '3px 10px', fontSize: 10.5 }}
+              onClick={() => router.push(`/series/${w.id}/${p.id}/edit`)}>EDIT</button>
+            <button className="btn btn-ghost" style={{ padding: '3px 10px', fontSize: 10.5 }}
+              onClick={removePost}>DELETE</button>
+          </div>
+        )}
         <small style={{ color: 'var(--accent)' }}>{idx + 1}화</small>
         <h2 style={{ margin: '4px 0 6px' }}>{p.title}</h2>
         <small style={{ color: 'var(--faint)' }}>{p.date}</small>
@@ -55,14 +63,6 @@ export default function SeriesPostPage() {
             onClick={() => next && router.push(`/series/${w.id}/${next.id}`)}>다음 글 →</button>
         </div>
 
-        {isAdmin && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6, marginTop: 16 }}>
-            <button className="btn btn-ghost" style={{ padding: '3px 10px', fontSize: 10.5 }}
-              onClick={() => router.push(`/series/${w.id}/${p.id}/edit`)}>EDIT</button>
-            <button className="btn btn-ghost" style={{ padding: '3px 10px', fontSize: 10.5 }}
-              onClick={removePost}>DELETE</button>
-          </div>
-        )}
       </div>
       {del.element}
     </section>
