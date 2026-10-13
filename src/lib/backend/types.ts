@@ -123,6 +123,13 @@ export const COLLECTION_OF: Record<string, string> = {
   // 알림 — 기기 보관이던 것을 서버로 (v2.0 포크 제보 「알림이 안 와요」).
   // 행 주인(authorId)을 받는 사람으로 적어, 받는 사람 계정이 어느 기기에서나 받아 간다
   'ohome.notif.v1': 'notifications',
+  'ohome.twitter.v1': 'twitter',
+  'ohome.lck.v1': 'lck',
+  'ohome.couple.v1': 'couple',
+  'ohome.oc.v1': 'oc',
+  'ohome.pushoong.v1': 'pushoong',
+  'ohome.kakaotalk.v1': 'kakaotalk',
+  'ohome.style.v1': 'style',
 };
 
 export const CONTENT_COLLECTIONS = Object.values(COLLECTION_OF);
