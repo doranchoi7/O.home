@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { useLocalList } from '@/lib/postStore';
 import { SeriesWork, SERIES_KEY } from '@/lib/seriesStore';
 import { PageTitle } from '@/components/ui/PageText';
+import { renderBody } from '@/lib/sanitize';
 import { useConfirmDelete } from '@/components/ui/Modal';
 
 export default function SeriesPostPage() {
@@ -53,7 +54,11 @@ export default function SeriesPostPage() {
         <small style={{ color: 'var(--accent)' }}>{idx + 1}화</small>
         <h2 style={{ margin: '4px 0 6px' }}>{p.title}</h2>
         <small style={{ color: 'var(--faint)' }}>{p.date}</small>
-        <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.85, marginTop: 24, fontSize: 14 }}>{p.text}</div>
+        {p.rich ? (
+          <div className="post-body" style={{ marginTop: 24 }} dangerouslySetInnerHTML={{ __html: renderBody('html', p.text) }} />
+        ) : (
+          <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.85, marginTop: 24, fontSize: 14 }}>{p.text}</div>
+        )}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 36 }}>
           <button className="btn btn-ghost" disabled={!prev}
