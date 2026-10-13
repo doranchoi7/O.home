@@ -1,4 +1,5 @@
 'use client';
+import { Suspense } from 'react';
 import { useAuth } from '@/lib/auth';
 import { PageTitle, EditableDesc } from '@/components/ui/PageText';
 import { SeriesForm } from '@/components/series/SeriesForm';
@@ -18,7 +19,7 @@ export default function SeriesNewPage() {
         <PageTitle href="/series">SERIES</PageTitle>
         <EditableDesc k="series-new-desc" def="새 시리즈 만들기 — 제목과 표지를 등록하면 글을 쌓을 수 있습니다" />
       </div>
-      <SeriesForm />
+      <Suspense fallback={null}><SeriesForm /></Suspense>
     </section>
   );
 }
