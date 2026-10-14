@@ -126,7 +126,7 @@ export function useLocalList<T extends { id?: string }>(key: string, seed: T[]):
             if (!alive || id !== reqId.current) return;   // 그 사이 더 최신 요청이 있었으면 버림
             setList(rows); latest.current = rows; setLoaded(true);
           })
-          .catch(() => { if (alive) setLoaded(true); });
+          .catch(e => { console.error('[ohome] 목록 불러오기 실패', table, e); if (alive) setLoaded(true); });
       };
       load();
       const off = subscribeTable(table, load);   // 다른 사람이 쓰면 바로 반영
