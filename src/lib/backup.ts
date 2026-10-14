@@ -23,6 +23,7 @@ const SITE_KEYS = [
   'ohome.cursor.v1', 'ohome.bgm.v1', 'ohome.bgm.fold', 'ohome.boardset.v1', 'ohome.boards.v1',
   'ohome.commset.v1', 'ohome.memoset.v1', 'ohome.threadset.v1', 'ohome.trpgset.v1',
   'ohome.moods.v1', 'ohome.relqsets.v1', 'ohome.notifset.v1',
+  'ohome.seriesset.v1', 'ohome.sections.v1', 'ohome.typecats.v1',
 ];
 
 export interface ResetGroup { key: string; label: string; desc?: string; keys: string[] }
@@ -47,6 +48,14 @@ export const RESET_CONTENT: ResetGroup[] = [
   { key: 'comm', label: '커미션·신청자', keys: ['ohome.comm.v1', 'ohome.commapply.v1'] },
   { key: 'sched', label: '스케줄러 일정', keys: ['ohome.sched.v1'] },
   { key: 'notif', label: '알림', keys: ['ohome.notif.v1'] },
+  { key: 'series', label: '시리즈', keys: ['ohome.series.v1'] },
+  { key: 'twitter', label: '트위터', keys: ['ohome.twitter.v1'] },
+  { key: 'lck', label: 'LCK 기록', keys: ['ohome.lck.v1'] },
+  { key: 'couple', label: '커플 다이어리', keys: ['ohome.couple.v1'] },
+  { key: 'oc', label: '자캐 목록', keys: ['ohome.oc.v1'] },
+  { key: 'pushoong', label: '푸슝', keys: ['ohome.pushoong.v1'] },
+  { key: 'kakaotalk', label: '카톡 백업', keys: ['ohome.kakaotalk.v1'] },
+  { key: 'style', label: '게임 코디', keys: ['ohome.style.v1'] },
 ];
 
 export const RESET_EXTRA: ResetGroup[] = [
