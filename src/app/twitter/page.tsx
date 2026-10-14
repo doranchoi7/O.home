@@ -1,5 +1,6 @@
 'use client';
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
+import { fetchList } from '@/lib/db';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useLocalList } from '@/lib/postStore';
@@ -18,6 +19,12 @@ function TwitterPageInner() {
   const { catsOf } = useTypeCats();
   const cats = catsOf('twitter', sec.id);
   const [cat, setCat] = useState('all');
+  const [dbg, setDbg] = useState('조회 중');
+  useEffect(() => {
+    fetchList('twitter')
+      .then(r => setDbg(`직접 조회 ${r.length}개`))
+      .catch(e => setDbg(`오류 ${e?.code ?? ''} ${e?.message ?? e}`));
+  }, []);
 
   if (!loaded) return <section className="page" />;
 
@@ -52,7 +59,7 @@ function TwitterPageInner() {
 
       {list.length === 0 ? (
         <div className="panel" style={{ textAlign: 'center', padding: 48, fontSize: 13, color: 'var(--faint)' }}>
-          트윗이 없습니다 (불러온 {all.length}개 / 로그인 {user ? 'O' : 'X'})
+          트윗이 없습니다 (불러온 {all.length}개 / 로그인 {user ? 'O' : 'X'} / {dbg})
         </div>
       ) : (
         <div className="panel" style={{ maxWidth: 600, margin: '0 auto', padding: 0 }}>
