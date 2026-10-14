@@ -52,7 +52,7 @@ function TwitterPageInner() {
 
       {list.length === 0 ? (
         <div className="panel" style={{ textAlign: 'center', padding: 48, fontSize: 13, color: 'var(--faint)' }}>
-          트윗이 없습니다
+          트윗이 없습니다 (불러온 {all.length}개 / 로그인 {user ? 'O' : 'X'})
         </div>
       ) : (
         <div className="panel" style={{ maxWidth: 600, margin: '0 auto', padding: 0 }}>
