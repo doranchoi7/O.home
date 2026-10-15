@@ -46,6 +46,7 @@ export interface LckMatch {
   vis: 'public' | 'member' | 'password' | 'private';
   visibility: 'public' | 'member' | 'private';   // 서버 규칙용 (비밀번호 공개는 public으로 저장)
   pwHash?: string; created: number;
+  board?: RatingBoard;
 }
 
 export const emptyTeam = (): TeamData => ({
@@ -132,3 +133,11 @@ export async function hashPw(pw: string): Promise<string> {
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 }
+
+export interface RateRow { nickL: string; nickR: string; scoreL: string; scoreR: string; hi: '' | 'L' | 'R' }
+export interface RatingBoard { title: string; teamL: string; teamR: string; score: string; rows: RateRow[] }
+export const emptyBoard = (): RatingBoard => ({
+  title: '', teamL: '', teamR: '', score: '',
+  rows: Array.from({ length: 5 }, () => ({ nickL: '', nickR: '', scoreL: '', scoreR: '', hi: '' as const })),
+});
+export const boardFilled = (b?: RatingBoard) => !!b && b.rows.some(r => r.scoreL.trim() || r.scoreR.trim());
