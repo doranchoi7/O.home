@@ -13,7 +13,7 @@ export type Who = 'a' | 'b';
 /** 두 사람 — 이름·하트 색은 여기서만 바꾸면 된다 */
 export const NICKS: Record<Who, { name: string; color: string }> = {
   a: { name: '어리고싶다', color: '#f06f96' },      // 분홍 하트
-  b: { name: '야생마 문현준', color: '#3aa0d8' },   // 파란 하트
+  b: { name: '나는 악마다', color: '#3aa0d8' },   // 파란 하트
 };
 
 export interface CouplePost {
