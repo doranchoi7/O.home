@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useLocalList } from '@/lib/postStore';
-import { LCK_KEY, LCK_PINK, hashPw, type LckMatch } from '@/lib/lckStore';
-import { PageTitle } from '@/components/ui/PageText';
+import { LCK_KEY, boardFilled, hashPw, type LckMatch } from '@/lib/lckStore';
+import { RatingView } from '@/components/lck/RatingBoard';
 import { useSectionTitle } from '@/lib/sectionStore';
 import { useConfirmDelete } from '@/components/ui/Modal';
 import { HtmlBody } from '@/components/ui/HtmlBody';
@@ -79,16 +79,19 @@ export default function LckViewPage() {
       )}
       <SetView set={m.sets[idx]} match={m} idx={idx} />
 
-      {(m.review || m.rating) && (
+      {m.review && (
         <div className="panel" style={{ maxWidth: 600, margin: '16px auto 0', padding: 20 }}>
-          {m.review && <HtmlBody html={m.review} />}
-          {m.rating && (
-            <div style={{ marginTop: m.review ? 18 : 0, display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--faint)' }}>개인 평점</span>
-              <b style={{ fontSize: 22, color: LCK_PINK }}>{m.rating}</b><span style={{ fontSize: 12, color: 'var(--faint)' }}>/ 10</span>
-              {m.ratingNote && <span style={{ fontSize: 13, color: 'var(--sub)', flexBasis: '100%' }}>{m.ratingNote}</span>}
-            </div>
-          )}
+          <HtmlBody html={m.review} />
+        </div>
+      )}
+      {boardFilled(m.board) && (
+        <div style={{ maxWidth: 600, margin: '16px auto 0', display: 'flex', justifyContent: 'center' }}>
+          <RatingView board={m.board!} />
+        </div>
+      )}
+      {m.ratingNote && (
+        <div className="panel" style={{ maxWidth: 600, margin: '16px auto 0', padding: 20 }}>
+          <HtmlBody html={m.ratingNote} />
         </div>
       )}
       {del.element}
