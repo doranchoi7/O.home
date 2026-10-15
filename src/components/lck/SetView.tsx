@@ -36,7 +36,7 @@ export function SetView({ set: s, match: m, idx }: {
   const hasScore = s.blue.score.trim() || s.red.score.trim();
 
   const banGroup = (side: Side) => (
-    <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+    <div style={{ display: 'flex', gap: 10, justifyContent: 'center', alignItems: 'center', padding: '8px 0' }}>
       {[[0, 1, 2], [3, 4]].map((g, gi) => (
         <div key={gi} style={{ display: 'flex', gap: 3 }}>
           {g.map(i => <ChampImg key={i} id={s[side].bans[i]} size={34} />)}
@@ -56,7 +56,7 @@ export function SetView({ set: s, match: m, idx }: {
     );
     const blue = side === 'blue';
     return (
-      <div style={{ padding: '6px 10px', textAlign: blue ? 'right' : 'left' }}>
+      <div style={{ padding: '8px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: blue ? 'right' : 'left' }}>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: blue ? 'flex-end' : 'flex-start', fontSize: 15, fontWeight: 800, color: '#111' }}>
           {blue && badge}{p.nick}{!blue && badge}
         </div>
@@ -110,8 +110,10 @@ export function SetView({ set: s, match: m, idx }: {
         </div>
       )}
       {/* 밴 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 34px 1fr', alignItems: 'center', padding: '8px 0' }}>
-        {banGroup('blue')}<div style={{ ...cell, fontWeight: 800, fontSize: 12 }}>밴</div>{banGroup('red')}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 34px 1fr' }}>
+        {banGroup('blue')}
+        <div style={{ ...cell, fontWeight: 800, fontSize: 12, borderLeft: '1px solid #e3e5e9', borderRight: '1px solid #e3e5e9' }}>밴</div>
+        {banGroup('red')}
       </div>
       <Bars />
       {/* 합계 */}
@@ -127,10 +129,14 @@ export function SetView({ set: s, match: m, idx }: {
       </div>
       {/* 10인 표 */}
       {[0, 1, 2, 3, 4].map(i => (
-        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 44px 44px 1fr', alignItems: 'center', borderBottom: '1px solid #e3e5e9' }}>
+        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 58px 58px 1fr', minHeight: 58, borderBottom: '1px solid #e3e5e9' }}>
           {playerBlock('blue', i)}
-          <ChampImg id={s.blue.players[i].champ} size={44} />
-          <ChampImg id={s.red.players[i].champ} size={44} />
+          <div style={{ ...cell, padding: 6, borderLeft: '1px solid #e3e5e9', borderRight: '1px solid #e3e5e9' }}>
+            <ChampImg id={s.blue.players[i].champ} size={44} />
+          </div>
+          <div style={{ ...cell, padding: 6, borderRight: '1px solid #e3e5e9' }}>
+            <ChampImg id={s.red.players[i].champ} size={44} />
+          </div>
           {playerBlock('red', i)}
         </div>
       ))}
