@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalList, newId } from '@/lib/postStore';
 import {
-  LCK_KEY, DRAGONS, col, emptySet, fillPrev, hashPw, todayStr,
-  type LckMatch, type SetData, type TeamData, type Player, type Side,
+  LCK_KEY, DRAGONS, col, emptySet, fillPrev, hashPw, todayStr, emptyBoard,
+  type LckMatch, type SetData, type TeamData, type Player, type Side, type RatingBoard,
 } from '@/lib/lckStore';
+import { RatingEditor, RatingView } from './RatingBoard';
 import { MAIN_SEC, secStamp, sectionHref, useSectionParam } from '@/lib/sectionStore';
 import { useTypeCats } from '@/lib/boardTypeStore';
 import { KInput, KSelect, KLabel, KCheck, KDate } from '@/components/ui/Kit';
@@ -240,7 +241,18 @@ export function MatchForm({ match }: { match?: LckMatch }) {
   const [sets, setSets] = useState<SetData[]>(match?.sets?.length ? match.sets : [emptySet()]);
   const [si, setSi] = useState(0);
   const [review, setReview] = useState(match?.review ?? '');
-  const [rating, setRating] = useState(match?.rating ?? '');
+  const [board, setBoard] = useState<RatingBoard>(match?.board ?? emptyBoard());
+  const fillBoard = () => {
+  const s0 = sets[0];
+  setBoard(b => ({
+    ...b,
+    teamL: b.teamL || s0.blue.name,
+    teamR: b.teamR || s0.red.name,
+    title: b.title || `${round} ${gameNo ? gameNo + '경기' : ''}`.trim(),
+    score: b.score || `${sets.filter(s => s.winner === 'blue').length} - ${sets.filter(s => s.winner === 'red').length}`,
+    rows: b.rows.map((r, i) => ({ ...r, nickL: r.nickL || s0.blue.players[i].nick, nickR: r.nickR || s0.red.players[i].nick })),
+  }));
+};
   const [ratingNote, setRatingNote] = useState(match?.ratingNote ?? '');
   const [busy, setBusy] = useState(false);
 
@@ -279,7 +291,7 @@ export function MatchForm({ match }: { match?: LckMatch }) {
       const data = {
         tournament: tournament.trim(), season, round: round.trim(), gameNo: gameNo.trim(), date, bo, fearless,
         player: player.trim(), award, bestKda: bestKda.trim(), bestDmg: bestDmg.trim(), result,
-        sets, review, rating: rating.trim(), ratingNote,
+        sets, review, rating: match?.rating ?? '', ratingNote, board,
         vis, visibility: (vis === 'password' ? 'public' : vis) as LckMatch['visibility'],
         pwHash, catId: catId || undefined,
       };
@@ -347,9 +359,17 @@ export function MatchForm({ match }: { match?: LckMatch }) {
       <div className="panel" style={panel}>
         <KLabel>후기</KLabel>
         <RichEditor value={review} onChange={setReview} placeholder="후기" />
-        <div style={{ display: 'flex', gap: 12, marginTop: 14, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-          <div style={{ width: 120 }}><KLabel>개인 평점 (10점 만점)</KLabel><KInput value={rating} onChange={e => setRating(e.target.value)} placeholder="8.5" /></div>
-          <div style={{ flex: 1, minWidth: 220 }}><KLabel>평점 이유</KLabel><KInput value={ratingNote} onChange={e => setRatingNote(e.target.value)} /></div>
+      </div>
+      
+      <div className="panel" style={panel}>
+        <KLabel>종합 평점</KLabel>
+        <RatingEditor board={board} onChange={setBoard} onFill={fillBoard} />
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 16, marginTop: 14, background: '#fafafa', borderRadius: 8 }}>
+          <RatingView board={board} />
+        </div>
+        <div style={{ marginTop: 14 }}>
+          <KLabel>평점 이유</KLabel>
+          <RichEditor value={ratingNote} onChange={setRatingNote} placeholder="평점 이유" />
         </div>
       </div>
 
