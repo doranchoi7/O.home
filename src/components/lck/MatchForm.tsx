@@ -4,10 +4,9 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocalList, newId } from '@/lib/postStore';
 import {
-  LCK_KEY, DRAGONS, col, emptySet, fillPrev,
+  LCK_KEY, DRAGONS, col, emptySet, fillPrev, hashPw, todayStr,
   type LckMatch, type SetData, type TeamData, type Player, type Side,
 } from '@/lib/lckStore';
-import { hashPw, todayStr } from '@/lib/lckStore';
 import { MAIN_SEC, secStamp, sectionHref, useSectionParam } from '@/lib/sectionStore';
 import { useTypeCats } from '@/lib/boardTypeStore';
 import { KInput, KSelect, KLabel, KCheck, KDate } from '@/components/ui/Kit';
