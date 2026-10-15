@@ -41,9 +41,9 @@ export function SetView({ set: s, match: m, idx }: {
 
   // 밴: 3개 + 2개 사이에 세로 구분선
   const banGroup = (side: Side) => (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'stretch' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr' }}>
       {[[0, 1, 2], [3, 4]].map((g, gi) => (
-        <div key={gi} style={{ display: 'flex', gap: 3, alignItems: 'center', padding: '8px 10px', borderLeft: gi === 1 ? bb : 'none' }}>
+        <div key={gi} style={{ display: 'flex', gap: 3, alignItems: 'center', justifyContent: 'center', padding: '8px 0', borderLeft: gi === 1 ? bb : 'none' }}>
           {g.map(i => <ChampImg key={i} id={s[side].bans[i]} size={34} />)}
         </div>
       ))}
@@ -156,7 +156,7 @@ export function SetView({ set: s, match: m, idx }: {
       <div>
         <div style={objRow}>
           <div style={objSide}>{s.blue.dragons.map((d, i) => <DragonIcon key={i} k={d} />)}</div>
-          <div style={cell}><SoulIcon k={s.soul} /></div>
+          <div style={{ ...cell, padding: '14px 0' }}><SoulIcon k={s.soul} /></div>
           <div style={objSide}>{s.red.dragons.map((d, i) => <DragonIcon key={i} k={d} />)}</div>
         </div>
         <div style={objRow}>
