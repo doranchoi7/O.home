@@ -83,9 +83,9 @@ function SetEditor({ s, idx, sets, fearless, onChange }: {
               <div key={side} style={{ display: 'grid', gap: 4 }}>
                 {s[side].prev.map((row, r) => (
                   <div key={r} style={{ display: 'flex', gap: 3 }}>
-                    {row.map((c, k) => (
+                    {row.c.map((c, k) => (
                       <ChampSelect key={k} size={30} value={c}
-                        onChange={v => team(side, { prev: s[side].prev.map((rw, ri) => (ri === r ? rw.map((cc, ci) => (ci === k ? v : cc)) : rw)) })} />
+                        onChange={v => team(side, { prev: s[side].prev.map((rw, ri) => (ri === r ? { c: rw.c.map((cc, ci) => (ci === k ? v : cc)) } : rw)) })} />
                     ))}
                   </div>
                 ))}
