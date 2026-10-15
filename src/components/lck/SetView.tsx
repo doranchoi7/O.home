@@ -33,7 +33,8 @@ function Count({ icon, n, dash }: { icon: React.ReactNode; n: string; dash?: boo
 export function SetView({ set: s, match: m, idx }: {
   set: SetData; match: Pick<LckMatch, 'round' | 'gameNo' | 'date' | 'fearless'>; idx: number;
 }) {
-  const title = [m.round, m.gameNo ? `${m.gameNo}경기` : '', `${idx + 1}세트`].filter(Boolean).join(' ');
+  const game = /^\d+$/.test(m.gameNo) ? `${m.gameNo}경기` : m.gameNo;
+  const title = [m.round, game, `${idx + 1}세트`].filter(Boolean).join(' ');
   const res = (side: Side) => (!s.winner ? '' : s.winner === side ? 'WIN' : 'LOSS');
   const tot = (side: Side) => `${s[side].kills || 0} / ${s[side].deaths || 0} / ${s[side].assists || 0}`;
   const showPrev = m.fearless && (s.blue.prev.length > 0 || s.red.prev.length > 0);
