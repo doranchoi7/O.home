@@ -248,7 +248,7 @@ export function MatchForm({ match }: { match?: LckMatch }) {
     ...b,
     teamL: b.teamL || s0.blue.name,
     teamR: b.teamR || s0.red.name,
-    title: b.title || `${round} ${gameNo ? gameNo + '경기' : ''}`.trim(),
+    title: b.title || [round, /^\d+$/.test(gameNo) ? `${gameNo}경기` : gameNo].filter(Boolean).join(' '),
     score: b.score || `${sets.filter(s => s.winner === 'blue').length} - ${sets.filter(s => s.winner === 'red').length}`,
     rows: b.rows.map((r, i) => ({ ...r, nickL: r.nickL || s0.blue.players[i].nick, nickR: r.nickR || s0.red.players[i].nick })),
   }));
@@ -318,7 +318,7 @@ export function MatchForm({ match }: { match?: LckMatch }) {
           <div><KLabel>대회 이름</KLabel><KInput value={tournament} onChange={e => setTournament(e.target.value)} placeholder="LCK 플레이오프" /></div>
           <div><KLabel>시즌</KLabel><KSelect minWidth={100} value={season} onChange={setSeason} options={years.map(y => ({ value: y, label: y }))} /></div>
           <div><KLabel>라운드</KLabel><KInput value={round} onChange={e => setRound(e.target.value)} placeholder="4강" /></div>
-          <div><KLabel>몇 경기</KLabel><KInput value={gameNo} onChange={e => setGameNo(e.target.value)} placeholder="1" /></div>
+          <div><KLabel>경기명</KLabel><KInput value={gameNo} onChange={e => setGameNo(e.target.value)} placeholder="1경기 (숫자만 쓰면 '1경기'로 표시)" /></div>
           <div><KLabel>경기 날짜</KLabel><KDate value={date} onChange={setDate} /></div>
           <div><KLabel>방식</KLabel><KSelect minWidth={100} value={String(bo)} onChange={v => setBo(+v)} options={[{ value: '1', label: 'Bo1' }, { value: '3', label: 'Bo3' }, { value: '5', label: 'Bo5' }]} /></div>
           <div><KLabel>선수명</KLabel><KInput list="lck-nicks" value={player} onChange={e => setPlayer(e.target.value)} /></div>
