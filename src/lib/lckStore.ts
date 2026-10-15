@@ -117,3 +117,18 @@ export function useChamps(): Champ[] {
   return getChamps();
 }
 export const sortChamps = (c: Champ[]) => [...c].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+
+// 오늘 날짜 (YYYY-MM-DD)
+export function todayStr(): string {
+  const d = new Date();
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+// 비밀번호 해시 (SHA-256, 비동기)
+export async function hashPw(pw: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
