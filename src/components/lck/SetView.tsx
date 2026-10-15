@@ -8,8 +8,8 @@ import { B, R, col, fmtBig, dateKo, type SetData, type LckMatch, type Side } fro
 const LINE = '#e3e5e9';   // 일반 구분선
 const SOFT = '#eef0f3';   // 오브젝트 줄 구분선 (일반보다 옅게)
 const WHITE = '1px solid #fff';
+const bb = `1px solid ${LINE}`;
 const cell: React.CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
-const line: React.CSSProperties = { border: `1px solid ${LINE}` };
 
 function Colored({ bg, children, style }: { bg: string; children?: React.ReactNode; style?: React.CSSProperties }) {
   return <div style={{ ...cell, background: bg, color: '#fff', fontWeight: 800, ...style }}>{children}</div>;
@@ -43,7 +43,7 @@ export function SetView({ set: s, match: m, idx }: {
   const banGroup = (side: Side) => (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'stretch' }}>
       {[[0, 1, 2], [3, 4]].map((g, gi) => (
-        <div key={gi} style={{ display: 'flex', gap: 3, alignItems: 'center', padding: '8px 10px', borderLeft: gi === 1 ? `1px solid ${LINE}` : 'none' }}>
+        <div key={gi} style={{ display: 'flex', gap: 3, alignItems: 'center', padding: '8px 10px', borderLeft: gi === 1 ? bb : 'none' }}>
           {g.map(i => <ChampImg key={i} id={s[side].bans[i]} size={34} />)}
         </div>
       ))}
@@ -70,6 +70,7 @@ export function SetView({ set: s, match: m, idx }: {
     );
   };
 
+  // 밴픽 순서: 슬롯 폭(54)이 칸(50)보다 넓어서 이웃 쌍끼리 4px 간격으로 붙는다
   const pickSlot = (i: number) => {
     const pk = s.picks[i];
     return (
@@ -80,18 +81,18 @@ export function SetView({ set: s, match: m, idx }: {
     );
   };
   const pair = (a: number, b: number) => (
-    <div key={a} style={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-      {pickSlot(a)}<div style={{ width: 14, height: 3, background: '#222', marginTop: 24 }} />{pickSlot(b)}
+    <div key={a} style={{ display: 'flex', alignItems: 'flex-start' }}>
+      {pickSlot(a)}<div style={{ width: 12, height: 2, background: LINE, marginTop: 24 }} />{pickSlot(b)}
     </div>
   );
   const showPicks = s.picks.some(p => p.champ || p.nick);
 
-  // 오브젝트 줄: 흰 배경 · 줄마다 구분선 · 상하 중앙 · 아이콘은 양옆으로 넓게
-  const objRow: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 80px 1fr', alignItems: 'center', minHeight: 54, borderBottom: `1px solid ${SOFT}` };
+  // 오브젝트 줄: 흰 배경 · 줄마다 구분선 · 상하 중앙 · 가운데(영혼/전령) 칸을 넓게
+  const objRow: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 120px 1fr', alignItems: 'center', minHeight: 54, borderBottom: `1px solid ${SOFT}` };
   const objSide: React.CSSProperties = { display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '0 14px' };
 
   return (
-    <div style={{ maxWidth: 560, margin: '0 auto', background: '#fff', color: '#111', border: `1px solid ${LINE}`, borderRadius: 8, overflow: 'hidden' }}>
+    <div style={{ maxWidth: 560, margin: '0 auto', background: '#fff', color: '#111', border: bb, borderRadius: 8, overflow: 'hidden' }}>
       {/* 헤더 — 가운데만 검은 배경, 양옆 색칸과는 흰 선으로 구분 */}
       <div style={{ display: 'grid', gridTemplateColumns: '84px 1fr 84px', minHeight: 54 }}>
         <Colored bg={B} style={{ borderRight: WHITE }}>{star(s.hBlue)}</Colored>
@@ -100,8 +101,8 @@ export function SetView({ set: s, match: m, idx }: {
         </div>
         <Colored bg={R} style={{ borderLeft: WHITE }}>{star(s.hRed)}</Colored>
       </div>
-      {/* 팀명 */}
-      <div style={{ display: 'grid', gridTemplateColumns: hasScore ? '1fr 64px 1fr' : '1fr 1fr', height: 32 }}>
+      {/* 팀명 — 위쪽(헤더와 사이)에 흰 선 */}
+      <div style={{ display: 'grid', gridTemplateColumns: hasScore ? '1fr 64px 1fr' : '1fr 1fr', height: 33, borderTop: WHITE }}>
         <Colored bg={B} style={hasScore ? undefined : { borderRight: WHITE }}>{s.blue.name}</Colored>
         {hasScore && <div style={{ ...cell, fontWeight: 800, fontSize: 15 }}>{s.blue.score || 0} : {s.red.score || 0}</div>}
         <Colored bg={R}>{s.red.name}</Colored>
@@ -121,30 +122,30 @@ export function SetView({ set: s, match: m, idx }: {
       {/* 밴 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 34px 1fr' }}>
         {banGroup('blue')}
-        <div style={{ ...cell, fontWeight: 800, fontSize: 12, borderLeft: `1px solid ${LINE}`, borderRight: `1px solid ${LINE}` }}>밴</div>
+        <div style={{ ...cell, fontWeight: 800, fontSize: 12, borderLeft: bb, borderRight: bb }}>밴</div>
         {banGroup('red')}
       </div>
       <Bars />
-      {/* 합계 — 가운데 칸을 넓게(42%), 승패 색칸도 같은 너비 */}
+      {/* 합계 — 칸마다 아래·오른쪽 선만 그려서 겹쳐 굵어지지 않게 */}
       <div style={{ display: 'grid', gridTemplateColumns: '29% 42% 29%', fontSize: 14 }}>
-        <div style={{ ...cell, ...line, height: 34 }}>{tot('blue')}</div>
-        <div style={{ ...cell, ...line, fontWeight: 800 }}>{s.time}</div>
-        <div style={{ ...cell, ...line }}>{tot('red')}</div>
-        <div style={{ ...cell, ...line, height: 34 }}>{fmtBig(s.blue.gold)}</div>
+        <div style={{ ...cell, height: 34, borderBottom: bb, borderRight: bb }}>{tot('blue')}</div>
+        <div style={{ ...cell, fontWeight: 800, borderBottom: bb, borderRight: bb }}>{s.time}</div>
+        <div style={{ ...cell, borderBottom: bb }}>{tot('red')}</div>
+        <div style={{ ...cell, height: 34, borderBottom: bb }}>{fmtBig(s.blue.gold)}</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
           <Colored bg={B} style={{ fontSize: 12.5, borderRight: WHITE }}>{res('blue')}</Colored>
           <Colored bg={R} style={{ fontSize: 12.5 }}>{res('red')}</Colored>
         </div>
-        <div style={{ ...cell, ...line }}>{fmtBig(s.red.gold)}</div>
+        <div style={{ ...cell, borderBottom: bb }}>{fmtBig(s.red.gold)}</div>
       </div>
       {/* 10인 표 */}
       {[0, 1, 2, 3, 4].map(i => (
-        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 58px 58px 1fr', minHeight: 58, borderBottom: `1px solid ${LINE}` }}>
+        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 58px 58px 1fr', minHeight: 58, borderBottom: bb }}>
           {playerBlock('blue', i)}
-          <div style={{ ...cell, padding: 6, borderLeft: `1px solid ${LINE}`, borderRight: `1px solid ${LINE}` }}>
+          <div style={{ ...cell, padding: 6, borderLeft: bb, borderRight: bb }}>
             <ChampImg id={s.blue.players[i].champ} size={44} />
           </div>
-          <div style={{ ...cell, padding: 6, borderRight: `1px solid ${LINE}` }}>
+          <div style={{ ...cell, padding: 6, borderRight: bb }}>
             <ChampImg id={s.red.players[i].champ} size={44} />
           </div>
           {playerBlock('red', i)}
@@ -185,15 +186,11 @@ export function SetView({ set: s, match: m, idx }: {
           </div>
         </div>
       </div>
-      {/* 밴픽 순서 */}
+      {/* 밴픽 순서 — 구분선 없이 한 덩어리, 쌍끼리 붙여서 */}
       {showPicks && (
-        <div>
-          <div style={{ padding: '14px 8px', display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', borderBottom: `1px solid ${LINE}` }}>
-            {[0, 2, 4].map(a => pair(a, a + 1))}
-          </div>
-          <div style={{ padding: '14px 8px', display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-            {[6, 8].map(a => pair(a, a + 1))}
-          </div>
+        <div style={{ padding: '10px 8px 12px', display: 'grid', gap: 8, justifyContent: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>{[0, 2, 4].map(a => pair(a, a + 1))}</div>
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>{[6, 8].map(a => pair(a, a + 1))}</div>
         </div>
       )}
     </div>
