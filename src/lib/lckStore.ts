@@ -23,7 +23,7 @@ export const dragonColor = (k: string) => DRAGONS.find(d => d.k === k)?.color ??
 export interface Player { nick: string; champ: string; k: string; d: string; a: string; dmg: string }
 export interface TeamData {
   name: string; score: string;
-  bans: string[]; prev: string[][];
+  bans: string[]; prev: { c: string[] }[];
   kills: string; deaths: string; assists: string; gold: string;
   players: Player[]; bestDmg: number; bestKda: number;
   dragons: string[]; towers: string; grubs: string; elders: string; barons: string;
@@ -61,15 +61,15 @@ export const emptySet = (): SetData => ({
 });
 
 /** 피어리스: 앞 세트들의 챔프 줄을 팀 이름 기준으로 모은다 (진영이 바뀌어도 같은 팀 줄로) */
-export function fillPrev(sets: SetData[], idx: number): { blue: string[][]; red: string[][] } {
+export function fillPrev(sets: SetData[], idx: number): { blue: { c: string[] }[]; red: { c: string[] }[] } {
   const cur = sets[idx];
-  const out = { blue: [] as string[][], red: [] as string[][] };
+  const out = { blue: [] as { c: string[] }[], red: [] as { c: string[] }[] };
   for (let i = 0; i < idx; i++) {
     const s = sets[i];
     const row = (side: Side) => {
       const nm = cur[side].name.trim();
       const t = nm && s.red.name.trim() === nm ? s.red : nm && s.blue.name.trim() === nm ? s.blue : s[side];
-      return t.players.map(p => p.champ);
+      return { c: t.players.map(p => p.champ) };
     };
     out.blue.push(row('blue')); out.red.push(row('red'));
   }
