@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { useLocalList } from '@/lib/postStore';
 import { LCK_KEY, boardFilled, hashPw, type LckMatch } from '@/lib/lckStore';
 import { RatingView } from '@/components/lck/RatingBoard';
+import { PageTitle } from '@/components/ui/PageText';
 import { useSectionTitle } from '@/lib/sectionStore';
 import { useConfirmDelete } from '@/components/ui/Modal';
 import { HtmlBody } from '@/components/ui/HtmlBody';
