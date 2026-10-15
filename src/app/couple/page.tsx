@@ -79,6 +79,7 @@ const CSS = `
 .cp-lockrow{display:flex;gap:8px;justify-content:center}
 .cp-in{border:1px solid #e3e3e3;border-radius:8px;padding:8px 12px;font-size:13px;outline:0;background:#fff;width:100%;box-sizing:border-box}
 .cp-in:focus{border-color:var(--cp)}
+.cp-wrap .cp-in{color:#333;background:#fff}
 .cp-lockrow .cp-in{width:240px}
 .cp-open{border:0;border-radius:8px;background:var(--cp);color:#fff;font-weight:700;padding:0 18px;cursor:pointer}
 .cp-open:hover{background:var(--cp-deep)}
