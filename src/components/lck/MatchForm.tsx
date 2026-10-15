@@ -7,7 +7,7 @@ import {
   LCK_KEY, DRAGONS, col, emptySet, fillPrev,
   type LckMatch, type SetData, type TeamData, type Player, type Side,
 } from '@/lib/lckStore';
-import { hashPw, todayStr } from '@/lib/coupleStore';
+import { hashPw, todayStr } from '@/lib/lckStore';
 import { MAIN_SEC, secStamp, sectionHref, useSectionParam } from '@/lib/sectionStore';
 import { useTypeCats } from '@/lib/boardTypeStore';
 import { KInput, KSelect, KLabel, KCheck, KDate } from '@/components/ui/Kit';
