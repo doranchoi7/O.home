@@ -114,7 +114,7 @@ export function SetView({ set: s, match: m, idx }: {
           {(['blue', 'red'] as const).map(side => (
             <div key={side} style={{ display: 'grid', gap: 3, justifyContent: 'center' }}>
               {s[side].prev.map((row, r) => (
-                <div key={r} style={{ display: 'flex', gap: 2 }}>{row.map((c, k) => <ChampImg key={k} id={c} size={28} />)}</div>
+                <div key={r} style={{ display: 'flex', gap: 2 }}>{row.c.map((c, k) => <ChampImg key={k} id={c} size={28} />)}</div>
               ))}
             </div>
           ))}
