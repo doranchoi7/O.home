@@ -1812,12 +1812,12 @@ body.edit-on .main-grid.gridlines .wgt{outline-offset:0}
 .g-head { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .08em; }
 .g-machine { position: relative; width: 100%; aspect-ratio: 1 / 1; }   /* body.png의 가로:세로 비율로 */
 .g-machine img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
-.g-machine .g-pile { position: absolute; left: 22%; top: 10%; width: 56%; aspect-ratio: 2 / 1; }   /* 돔 안쪽에 맞출 것 */
+.g-machine .g-pile { position: absolute; left: 28%; top: 27%; width: 46%; aspect-ratio: 2 / 1; }
 .g-machine .g-pile img.g-pb { position: absolute; inset: auto; width: 22%; height: auto; transform: rotate(var(--r)) scaleX(var(--f)); }
 .g-machine .g-pile.shake img.g-pb { animation: g-jig .18s linear 7; }
 .g-machine img.g-handle { inset: auto; left: 38%; top: 44%; width: 24%; height: auto; }   /* 원래 손잡이에 겹치게 */
 .g-machine img.g-handle.spin { animation: g-spin 1.2s ease-in-out; }
-.g-machine img.g-ball { inset: auto; left: 44%; top: 68%; width: 12%; height: auto; }   /* 출구 위치에 맞출 것 */
+.g-machine img.g-ball { inset: auto; left: 44%; top: 68%; width: 10%; height: auto; }   /* 출구 위치에 맞출 것 */
 .g-machine img.g-ball.fall { animation: g-fall 1.2s ease-in forwards; }
 .g-machine img.g-ball.pop { transform: translate(30px, 70px); animation: g-pop .8s ease-out forwards; }
 .gacha.result .g-mon { max-width: 70%; image-rendering: pixelated; }
