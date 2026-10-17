@@ -21,6 +21,7 @@ export const TYPE_TAB_KIND: Record<string, SectionKind> = {
   '카톡 백업': 'kakaotalk',
   '게임 코디': 'style',
   '앨범': 'album',
+  '포토카드': 'photocard',
 };
 
 export const isTypeTab = (tab: string) => tab in TYPE_TAB_KIND;
