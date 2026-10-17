@@ -1807,3 +1807,17 @@ body.edit-on .main-grid.gridlines .wgt{outline-offset:0}
 .up-busy{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:121;display:flex;align-items:center;gap:9px;padding:10px 18px;border-radius:999px;background:var(--dd-bg);color:var(--dd-fg);font-size:calc(12.5px*var(--fs,1));box-shadow:0 10px 30px rgba(0,0,0,.3);border:1px solid var(--line-dark);backdrop-filter:blur(8px)}
 .up-spin{width:12px;height:12px;border-radius:50%;border:2px solid var(--line-dark);border-top-color:var(--accent);animation:upSpin .7s linear infinite;flex-shrink:0}
 @keyframes upSpin{to{transform:rotate(360deg)}}
+
+.gacha { cursor: pointer; text-align: center; user-select: none; }
+.g-head { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .08em; }
+.g-machine { position: relative; width: 100%; aspect-ratio: 1 / 1.1; }   /* 본체 이미지 비율에 맞출 것 */
+.g-machine img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.g-machine img.g-handle { transform-origin: 50% 52%; }                   /* 손잡이 중심에 맞출 것 */
+.g-machine img.g-handle.spin { animation: g-spin 1.2s ease-in-out; }
+.g-machine img.g-ball { inset: auto; left: 44%; top: 68%; width: 12%; height: auto; }   /* 출구 위치에 맞출 것 */
+.g-machine img.g-ball.fall { animation: g-fall 1.2s ease-in forwards; }
+.g-machine img.g-ball.pop { transform: translate(30px, 70px); animation: g-pop .8s ease-out forwards; }
+.gacha.result .g-mon { max-width: 70%; image-rendering: pixelated; }
+@keyframes g-spin { to { transform: rotate(180deg); } }
+@keyframes g-fall { from { transform: translate(0, 0); } to { transform: translate(30px, 70px) rotate(200deg); } }
+@keyframes g-pop  { from { transform: translate(30px, 70px) scale(1); } to { transform: translate(30px, 70px) scale(1.8); opacity: 0; } }
