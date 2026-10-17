@@ -41,7 +41,9 @@ export function GachaWidget() {
 
   const pull = () => {
     if (editOn || phase !== 'idle' || MONS.length === 0) return;
-    const mon = MONS[Math.floor(Math.random() * MONS.length)];
+    const total = MONS.reduce((s, m) => s + m.weight, 0);
+    let r = Math.random() * total;
+    const mon = MONS.find(m => (r -= m.weight) < 0) ?? MONS[0];
     const src = mon.imgs[Math.floor(Math.random() * mon.imgs.length)];
     setPicked({ mon, src });
     setPhase('turn');
