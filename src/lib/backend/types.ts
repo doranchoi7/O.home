@@ -132,6 +132,7 @@ export const COLLECTION_OF: Record<string, string> = {
   'ohome.style.v1': 'style',
   'ohome.album.v1': 'album',
   'ohome.photocard.v1': 'photocard',
+  'ohome.pop.v1': 'pop',
 };
 
 export const CONTENT_COLLECTIONS = Object.values(COLLECTION_OF);
