@@ -23,8 +23,8 @@ import { BlobImg, useBlobUrl } from '@/lib/blobStore';
 import { normalizeInternalLink } from '@/lib/link';
 import {
   Applicant, APPLY_SEED, useCommSettings, badgeStyle, maskName, inTrash,
-import { GachaWidget } from '@/components/main/GachaWidget';
 } from '@/lib/commStore';
+import { GachaWidget } from '@/components/main/GachaWidget';
 
 /* 편집모드 우클릭 「설정」 → 해당 위젯의 설정 모달 열기 (v1.9 사용자 확정 — 이벤트로 연결) */
 function useEditEvent(id: string, onOpen: () => void) {
