@@ -1,0 +1,48 @@
+/* 자캐 목록 — 사이트 기본 테마 색(--ink, --line, --accent …)을 따라간다 */
+.oc-toolrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.oc-sortinfo { font-size: 11.5px; color: var(--faint); display: flex; align-items: center; gap: 8px; }
+.oc-sortinfo button { padding: 3px 10px; border: 1.5px solid var(--line); border-radius: 999px; font-size: 11px; color: var(--sub); background: #fff; }
+.oc-sortinfo button:hover { border-color: var(--ink); color: var(--ink); }
+
+.oc-scroll { overflow-x: auto; }
+.oc-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
+.oc-table th {
+  position: relative; text-align: left; white-space: nowrap; padding: 11px 12px; font-size: 12px; font-weight: 700;
+  color: var(--sub); border-bottom: 1.5px solid var(--line); user-select: none; cursor: var(--cur-pointer, pointer); transition: .12s;
+}
+.oc-table th:hover { color: var(--ink); background: rgba(0, 0, 0, .03); }
+.oc-table th.on { color: var(--accent); }
+.oc-table th .ar { font-size: 9px; margin-left: 4px; }
+.oc-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
+.oc-table tr.row { cursor: var(--cur-pointer, pointer); transition: .12s; }
+.oc-table tr.row:hover td, .oc-table tr.row.open td { background: rgba(0, 0, 0, .03); }
+.oc-table td.no { width: 44px; color: var(--faint); font-size: 11px; }
+.oc-table td.empty { color: var(--faint); }
+.oc-name { display: flex; align-items: center; gap: 9px; font-weight: 700; }
+.oc-av { position: relative; width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: var(--line); }
+
+.oc-detail td { white-space: normal !important; padding: 18px 16px 20px !important; background: transparent !important; }
+.oc-detail-in { display: flex; gap: 20px; align-items: flex-start; }
+.oc-detail .pic { position: relative; width: 130px; aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden; background: var(--line); flex-shrink: 0; }
+.oc-detail dl { display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; font-size: 12.5px; margin: 0 0 12px; }
+.oc-detail dt { color: var(--faint); }
+.oc-detail dd { margin: 0; color: var(--ink); }
+.oc-detail .memo { line-height: 1.8; font-size: 13.5px; word-break: break-word; }
+.oc-detail .act { display: flex; gap: 6px; margin-top: 12px; }
+.oc-empty { text-align: center; color: var(--faint); padding: 44px 0; font-size: 13px; }
+
+/* 쓰기 폼 */
+.oc-form { max-width: 760px; margin: 0 auto; display: grid; gap: 16px; }
+.oc-form .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.oc-form .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.oc-form .inline { display: flex; align-items: center; gap: 6px; }
+.oc-form .inline span { font-size: 12.5px; color: var(--sub); white-space: nowrap; }
+.oc-form .jobbox { padding: 14px 16px; border: 1.5px dashed var(--line); border-radius: 12px; display: grid; gap: 12px; }
+.oc-form .jobbox > b { font-size: 12px; color: var(--sub); }
+.oc-form .picrow { display: flex; gap: 14px; align-items: center; }
+.oc-form .pic { position: relative; width: 96px; aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden; border: 1.5px dashed var(--line); cursor: var(--cur-pointer, pointer); flex-shrink: 0; }
+
+@media (max-width: 640px) {
+  .oc-detail-in { flex-direction: column; }
+  .oc-form .grid2, .oc-form .grid3 { grid-template-columns: 1fr; }
+}
