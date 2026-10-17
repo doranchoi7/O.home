@@ -30,7 +30,7 @@ function loadDex(): string[] {
 export function GachaWidget() {
   const { editOn } = useMainStore();
   const [phase, setPhase] = useState<Phase>('idle');
-  const [picked, setPicked] = useState<Mon | null>(null);
+  const [picked, setPicked] = useState<{ mon: Mon; src: string } | null>(null);
   const [dex, setDex] = useState<string[]>([]);
   const timers = useRef<number[]>([]);
 
@@ -42,7 +42,8 @@ export function GachaWidget() {
   const pull = () => {
     if (editOn || phase !== 'idle' || MONS.length === 0) return;
     const mon = MONS[Math.floor(Math.random() * MONS.length)];
-    setPicked(mon);
+    const src = mon.imgs[Math.floor(Math.random() * mon.imgs.length)];
+    setPicked({ mon, src });
     setPhase('turn');
     const at = (ms: number, fn: () => void) => timers.current.push(window.setTimeout(fn, ms));
     at(1200, () => setPhase('drop'));
@@ -66,8 +67,8 @@ export function GachaWidget() {
         <b className="g-title">짜잔!</b>
         <span className="g-sub">오늘의 포켓몬</span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="g-mon" src={picked.src} alt={picked.name} draggable={false} />
-        <p className="g-name">{picked.name}</p>
+        <img className="g-mon" src={picked.src} alt={picked.mon.name} draggable={false} />
+        <p className="g-name">{picked.mon.name}</p>
         <small>누르면 닫혀요</small>
       </div>
     );
