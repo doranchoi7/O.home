@@ -10,7 +10,7 @@ import { KRadio } from '@/components/ui/Kit';
 import { useToast } from '@/components/ui/Toast';
 import Shaker from './components/Shaker';
 
-const ADDABLE: WidgetType[] = ['banner', 'banners', 'gacha', 'memo', 'dday', 'todo', 'upcoming', 'freetext', 'deco', 'diary', 'latest', 'apply'];   // banner: 여러 개 추가 (v2.0 사용자 요청)
+const ADDABLE: WidgetType[] = ['banner', 'banners', 'memo', 'dday', 'todo', 'upcoming', 'freetext', 'deco', 'diary', 'latest', 'apply', 'gacha'];   // banner: 여러 개 추가 (v2.0 사용자 요청)
 /** 내용 설정 모달이 있는 위젯 — 우클릭 「설정」 노출 대상 (v1.9) */
 const EDITABLE: WidgetType[] = ['banner', 'banners', 'memo', 'dday', 'todo', 'freetext', 'deco', 'apply'];
 
