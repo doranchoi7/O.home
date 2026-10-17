@@ -40,7 +40,7 @@ service cloud.firestore {
         'trpg_logs', 'trpg_log_bodies', 'trpg_chars', 'dotori', 'playlog', 'rp_rooms', 'threads', 'series',
         'diary', 'memos', 'commissions', 'applicants', 'moods', 'comments', 'qa_answers', 'rp_messages',
         'notifications',
-        'twitter', 'lck', 'couple', 'oc', 'pushoong', 'kakaotalk', 'style', 'album'
+        'twitter', 'lck', 'couple', 'oc', 'pushoong', 'kakaotalk', 'style', 'album', 'photocard'
       ];
     }
 
