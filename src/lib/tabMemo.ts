@@ -1,5 +1,5 @@
 'use client';
-// 설정에 저장하는 {이름: 글자} 지도 — 탭 설명 메모, 게시판별 카드 비율에 쓴다
+// 설정에 저장하는 {이름: 글자} 지도 — 탭 설명 메모에 쓴다
 import { useCallback, useEffect, useState } from 'react';
 import { getRawSetting, setSetting } from './settingStore';
 
