@@ -44,6 +44,8 @@ export const SETTING_KEYS = [
   'ohome.relqsets.v1', 'ohome.main.v1', 'ohome.sched.v1',
   'ohome.membertags.v1', 'ohome.invite.v1', 'ohome.roadnext.v1', 'ohome.repo.v1',
   'ohome.sections.v1', 'ohome.intro.v1', 'ohome.links.v1', 'ohome.typecats.v1',
+  'ohome.occfg.v1',       // 자캐 목록 설정 (직업 탭·입력칸·선택지·표 항목)
+  'ohome.couplecfg.v1',   // 커플 다이어리 설정 (닉네임·하트색·비번 해시·만난 날 등)
 ];
 
 /** 앱 시작 시 1회 — 서버에 저장된 설정을 전부 받아 캐시 */

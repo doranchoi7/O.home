@@ -1,7 +1,7 @@
 'use client';
 // 자캐 등록/수정 공용 폼 — 직업을 고르면 그 직업의 입력칸(JOBS)이 나타난다
 import React, { useState } from 'react';
-import { OcChar, JOBS, BLOODS, FieldDef, jobOf } from '@/lib/ocStore';
+import { OcChar, OcConfig, BLOODS, FieldDef, SUB, jobOf } from '@/lib/ocStore';
 import { KInput, KTextarea, KSelect } from '@/components/ui/Kit';
 import { CropEditor, CropImg, CropValue } from '@/components/ui/CropEditor';
 import { putBlob, useBlobUrl } from '@/lib/blobStore';
@@ -15,33 +15,50 @@ const toNum = (s: string): number | undefined => {
   return Number.isFinite(n) ? n : undefined;
 };
 
-function JobField({ f, value, onChange }: { f: FieldDef; value: string; onChange: (v: string) => void }) {
-  if (f.type === 'rank' || f.type === 'select') {
+type Setter = (key: string, v: string) => void;
+
+function JobField({ f, x, set }: { f: FieldDef; x: Record<string, string>; set: Setter }) {
+  const pick = (opts: { id: string; label: string }[] | undefined, value: string, onChange: (v: string) => void) => (
+    <KSelect value={value} onChange={onChange}
+      options={[{ value: '', label: '선택 안 함' }, ...(opts ?? []).map(o => ({ value: o.id, label: o.label }))]} />
+  );
+  if (f.type === 'select') {
     return (
       <div>
         <label className="k-label">{f.label}</label>
-        <KSelect value={value} onChange={onChange} placeholder="선택 안 함"
-          options={[{ value: '', label: '선택 안 함' }, ...(f.options ?? []).map(o => ({ value: o, label: o }))]} />
+        {pick(f.options, x[f.key] ?? '', v => set(f.key, v))}
+      </div>
+    );
+  }
+  if (f.type === 'tier') {
+    return (
+      <div>
+        <label className="k-label">{f.label}</label>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {pick(f.options, x[f.key] ?? '', v => set(f.key, v))}
+          {pick(f.sub, x[f.key + SUB] ?? '', v => set(f.key + SUB, v))}
+        </div>
       </div>
     );
   }
   return (
     <div>
       <label className="k-label">{f.label}{f.unit ? ` (${f.unit})` : ''}</label>
-      <KInput value={value} inputMode={f.type === 'number' ? 'numeric' : undefined}
-        onChange={e => onChange(f.type === 'number' ? e.target.value.replace(/[^\d.]/g, '') : e.target.value)} />
+      <KInput value={x[f.key] ?? ''} inputMode={f.type === 'number' ? 'numeric' : undefined}
+        onChange={e => set(f.key, f.type === 'number' ? e.target.value.replace(/[^\d.]/g, '') : e.target.value)} />
     </div>
   );
 }
 
-export function OcForm({ initial, onSave, onCancel }: {
+export function OcForm({ initial, cfg, onSave, onCancel }: {
   initial: OcChar | null;
+  cfg: OcConfig;
   onSave: (v: OcFormValue) => void;
   onCancel: () => void;
 }) {
   const toast = useToast();
   const [name, setName] = useState(initial?.name ?? '');
-  const [job, setJob] = useState(initial?.job ?? JOBS[0].id);
+  const [job, setJob] = useState(initial && jobOf(cfg, initial.job) ? initial.job : cfg.jobs[0]?.id ?? '');
   const [age, setAge] = useState(initial?.age?.toString() ?? '');
   const [bm, setBm] = useState(initial?.birthM?.toString() ?? '');
   const [bd, setBd] = useState(initial?.birthD?.toString() ?? '');
@@ -60,7 +77,7 @@ export function OcForm({ initial, onSave, onCancel }: {
   const [cropOpen, setCropOpen] = useState(false);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
-  const def = jobOf(job);
+  const def = jobOf(cfg, job);
 
   const save = async () => {
     if (!name.trim()) { toast('이름을 입력해 주세요'); return; }
@@ -69,7 +86,10 @@ export function OcForm({ initial, onSave, onCancel }: {
     if (d !== undefined && (d < 1 || d > 31)) { toast('생일의 일은 1~31 사이로 입력해 주세요'); return; }
     // 선택한 직업의 항목 값만 저장 (직업을 바꾸며 남은 값은 버린다)
     const keep: Record<string, string> = {};
-    (def?.fields ?? []).forEach(f => { if (x[f.key]) keep[f.key] = x[f.key]; });
+    (def?.fields ?? []).forEach(f => {
+      if (x[f.key]) keep[f.key] = x[f.key];
+      if (f.type === 'tier' && x[f.key + SUB]) keep[f.key + SUB] = x[f.key + SUB];
+    });
     const img = file ? await putBlob(file) : initial?.img;
     onSave({
       name: name.trim(), job,
@@ -112,7 +132,7 @@ export function OcForm({ initial, onSave, onCancel }: {
           </div>
           <div>
             <label className="k-label">직업 (하나만)</label>
-            <KSelect value={job} onChange={setJob} options={JOBS.map(j => ({ value: j.id, label: j.label }))} />
+            <KSelect value={job} onChange={setJob} options={cfg.jobs.map(j => ({ value: j.id, label: j.label }))} />
           </div>
         </div>
 
@@ -148,7 +168,7 @@ export function OcForm({ initial, onSave, onCancel }: {
             <b>{def.label} 정보</b>
             <div className="grid2">
               {def.fields.map(f => (
-                <JobField key={f.key} f={f} value={x[f.key] ?? ''} onChange={v => setX(s => ({ ...s, [f.key]: v }))} />
+                <JobField key={f.key} f={f} x={x} set={(k, v) => setX(s => ({ ...s, [k]: v }))} />
               ))}
             </div>
           </div>
