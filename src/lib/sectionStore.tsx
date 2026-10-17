@@ -21,7 +21,7 @@ import { newId } from './postStore';
 
 export type SectionKind =
   | 'gallery' | 'roadview' | 'trpg' | 'dotori' | 'playlog' | 'comm' | 'diary' | 'series' | 'threads' | 'sched'   | 'chars'
-  | 'twitter' | 'lck' | 'couple' | 'oc' | 'pushoong' | 'kakaotalk' | 'style' | 'album' | 'photocard';
+  | 'twitter' | 'lck' | 'couple' | 'oc' | 'pushoong' | 'kakaotalk' | 'style' | 'album' | 'photocard' | 'pop';
 
 /** 섹션 종류별 기본 정보 — 설정 탭 이름과 페이지 주소 */
 export const SECTION_META: Record<SectionKind, { label: string; href: string; defName: string }> = {
@@ -45,6 +45,7 @@ export const SECTION_META: Record<SectionKind, { label: string; href: string; de
   style:     { label: '게임 코디 백업', href: '/style',    defName: '게임 코디 백업' },
   album:     { label: '앨범', href: '/album',    defName: '앨범' },
   photocard: { label: '포토카드', href: '/photocard', defName: '포토카드' },
+  pop:       { label: '팝 백업', href: '/pop', defName: '팝 백업' },
 };
 
 export const SECTION_KINDS = Object.keys(SECTION_META) as SectionKind[];
