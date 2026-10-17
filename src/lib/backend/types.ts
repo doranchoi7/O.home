@@ -131,6 +131,7 @@ export const COLLECTION_OF: Record<string, string> = {
   'ohome.kakaotalk.v1': 'kakaotalk',
   'ohome.style.v1': 'style',
   'ohome.album.v1': 'album',
+  'ohome.photocard.v1': 'photocard',
 };
 
 export const CONTENT_COLLECTIONS = Object.values(COLLECTION_OF);
