@@ -10,6 +10,7 @@ import type { Visibility } from '@/lib/charStore';
 import {
   AlbumItem, ALBUM_KEY, ALBUM_SEED, ALBUM_RATIO, ALBUM_CARD_MIN, ALBUM_PER,
 } from '@/lib/albumStore';
+import { useJsonMap } from '@/lib/tabMemo';
 import { Pager, KSelect } from '@/components/ui/Kit';
 import { Modal, ConfirmModal } from '@/components/ui/Modal';
 import { Lightbox } from '@/components/ui/Lightbox';
@@ -38,6 +39,40 @@ function FocusImg({ imgId, focus }: { imgId: string; focus: Focus }) {
 }
 
 interface SaveData { imgId: string; focus: Focus; catId: string; visibility: Visibility }
+
+/** 탭 아래 한 줄 설명 — 관리자는 눌러서 쓰고 고친다, 비우면 지워진다 */
+function TabMemo({ value, admin, onSave }: { value: string; admin: boolean; onSave: (v: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [v, setV] = useState(value);
+  if (!value && !admin) return null;
+  const done = () => { setEditing(false); onSave(v.trim()); };
+  return (
+    <div style={{ margin: '-2px 4px 14px', minHeight: 20, fontSize: 12, color: 'var(--faint)' }}>
+      {editing ? (
+        <input autoFocus value={v} maxLength={120} placeholder="이 탭에 대한 설명 한 줄"
+          onChange={e => setV(e.target.value)} onBlur={done}
+          onKeyDown={e => {
+            if (e.key === 'Enter') done();
+            if (e.key === 'Escape') { setV(value); setEditing(false); }
+          }}
+          style={{
+            width: '100%', maxWidth: 420, fontSize: 12, padding: '4px 8px', borderRadius: 6,
+            border: '1px solid var(--line)', background: 'transparent', color: 'inherit', outline: 'none',
+          }} />
+      ) : value ? (
+        <span>
+          {value}
+          {admin && (
+            <button title="설명 수정" onClick={() => { setV(value); setEditing(true); }}
+              style={{ marginLeft: 6, fontSize: 11, opacity: 0.7 }}>✎</button>
+          )}
+        </span>
+      ) : (
+        <button onClick={() => { setV(''); setEditing(true); }} style={{ fontSize: 11, opacity: 0.7 }}>＋ 탭 설명 추가</button>
+      )}
+    </div>
+  );
+}
 
 /** 올리기·수정 창 — 이미지 한 장, 드래그로 카드에 보일 부분 맞추기, 탭, 공개 범위 */
 function AlbumEditor({ item, cats, defaultCat, onClose, onSave }: {
@@ -176,6 +211,8 @@ function AlbumPageInner() {
 
   const [tab, setTab] = useState('');
   const curTab = cats.some(c => c.id === tab) ? tab : '';
+  const [memos, setMemo] = useJsonMap('ohome.tabmemo.v1');
+  const memoKey = `album:${sec.id}:${curTab || 'all'}`;
   const [page, setPage] = useState(1);
   const [view, setView] = useState<number | null>(null);          // 크게 보기 순번
   const [edit, setEdit] = useState<AlbumItem | 'new' | null>(null);
@@ -232,6 +269,8 @@ function AlbumPageInner() {
         )}
       </div>
 
+      <TabMemo key={memoKey} value={memos[memoKey] ?? ''} admin={isAdmin} onSave={v => setMemo(memoKey, v)} />
+      
       {visible.length > 0 ? (
         <div style={{
           display: 'grid', gap: 10,
