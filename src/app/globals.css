@@ -1829,3 +1829,21 @@ body.edit-on .main-grid.gridlines .wgt{outline-offset:0}
   25% { transform: rotate(calc(var(--r) + 6deg)) scaleX(var(--f)) translate(-3px, 2px); }
   75% { transform: rotate(calc(var(--r) - 6deg)) scaleX(var(--f)) translate(3px, -2px); }
 }
+
+/* 가챠머신 손잡이 — 본체와 같은 크기로 겹치고, 버튼 중심을 축으로 한 바퀴 돌린다 */
+.gacha .g-machine .g-handle.g-handle {
+  position: absolute;
+  left: 0; top: 0; right: auto; bottom: auto;
+  width: 100%; height: 100%;
+  transform: none;
+  transform-origin: 53.2% 67.9%;
+  animation: none;
+  pointer-events: none;
+}
+.gacha .g-machine .g-handle.g-handle.spin {
+  animation: gtoy-spin 1.1s ease-in-out 1;
+}
+@keyframes gtoy-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
