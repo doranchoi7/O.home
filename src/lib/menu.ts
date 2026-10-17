@@ -33,6 +33,7 @@ export const FEATURES: { href: string; label: string }[] = [
   { href: '/pushoong', label: '푸슝 백업' },
   { href: '/kakaotalk', label: '카톡 백업' },
   { href: '/style', label: '게임 코디 백업' },
+  { href: '/album', label: '앨범' },
   { href: '/guest', label: '방명록' },
   { href: '/intro', label: '소개' },
 ];
