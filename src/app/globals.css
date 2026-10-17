@@ -1810,9 +1810,12 @@ body.edit-on .main-grid.gridlines .wgt{outline-offset:0}
 
 .gacha { cursor: pointer; text-align: center; user-select: none; }
 .g-head { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .08em; }
-.g-machine { position: relative; width: 100%; aspect-ratio: 1 / 1.1; }   /* 본체 이미지 비율에 맞출 것 */
+.g-machine { position: relative; width: 100%; aspect-ratio: 1 / 1; }   /* body.png의 가로:세로 비율로 */
 .g-machine img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
-.g-machine img.g-handle { transform-origin: 50% 52%; }                   /* 손잡이 중심에 맞출 것 */
+.g-machine .g-pile { position: absolute; left: 22%; top: 10%; width: 56%; aspect-ratio: 2 / 1; }   /* 돔 안쪽에 맞출 것 */
+.g-machine .g-pile img.g-pb { position: absolute; inset: auto; width: 22%; height: auto; transform: rotate(var(--r)) scaleX(var(--f)); }
+.g-machine .g-pile.shake img.g-pb { animation: g-jig .18s linear 7; }
+.g-machine img.g-handle { inset: auto; left: 38%; top: 44%; width: 24%; height: auto; }   /* 원래 손잡이에 겹치게 */
 .g-machine img.g-handle.spin { animation: g-spin 1.2s ease-in-out; }
 .g-machine img.g-ball { inset: auto; left: 44%; top: 68%; width: 12%; height: auto; }   /* 출구 위치에 맞출 것 */
 .g-machine img.g-ball.fall { animation: g-fall 1.2s ease-in forwards; }
@@ -1821,3 +1824,8 @@ body.edit-on .main-grid.gridlines .wgt{outline-offset:0}
 @keyframes g-spin { to { transform: rotate(180deg); } }
 @keyframes g-fall { from { transform: translate(0, 0); } to { transform: translate(30px, 70px) rotate(200deg); } }
 @keyframes g-pop  { from { transform: translate(30px, 70px) scale(1); } to { transform: translate(30px, 70px) scale(1.8); opacity: 0; } }
+@keyframes g-jig {
+  0%, 100% { transform: rotate(var(--r)) scaleX(var(--f)) translate(0, 0); }
+  25% { transform: rotate(calc(var(--r) + 6deg)) scaleX(var(--f)) translate(-3px, 2px); }
+  75% { transform: rotate(calc(var(--r) - 6deg)) scaleX(var(--f)) translate(3px, -2px); }
+}
