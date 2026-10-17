@@ -1,6 +1,6 @@
 'use client';
-// 자캐 목록 — 글 형식 · 설정(직업 탭 / 입력칸 / 선택지 / 표에 보일 항목) · 정렬 규칙
-// 직업·입력칸·선택지·이미지는 코드가 아니라 /oc/settings (관리자 전용)에서 고친다.
+// 자캐 목록 — 글 형식 · 설정(공통 항목 / 직업 탭 / 입력칸 / 선택지 / 표에 보일 항목) · 정렬 규칙
+// 이름을 뺀 모든 항목은 코드가 아니라 /oc/settings (관리자 전용)에서 고친다.
 // 아래 defaultConfig() 는 "처음 한 번만 쓰이는 예시 값" — 설정을 저장하고 나면 설정이 우선한다.
 import { useCallback, useEffect, useState } from 'react';
 import { getSetting, setSetting, onSettingChange } from '@/lib/settingStore';
@@ -14,16 +14,17 @@ export const SUB = '__sub';
 
 /* ---------- 설정 형식 ---------- */
 /**
- * text   : 글자
+ * text   : 글자 (선택지 목록에 이미지를 등록해 두면, 같은 글자를 입력했을 때 이미지가 같이 뜸)
  * number : 숫자 (높은 순이 먼저)
+ * date   : 'n월 n일' (생년 없이 월·일만)
  * select : 선택형 — 선택지 순서가 곧 정렬 순서
  * tier   : 티어형 — 큰 단계 + 세부 단계 두 번 고름. 큰 단계 순서 → 세부 단계 순서로 정렬
  */
-export type FieldType = 'text' | 'number' | 'select' | 'tier';
+export type FieldType = 'text' | 'number' | 'date' | 'select' | 'tier';
 
 export interface OcOption {
   id: string;       // 저장되는 값 (이름을 바꿔도 안 변함 → 이미 등록한 캐릭터가 이름 변경을 따라감)
-  label: string;    // 화면에 보이는 이름
+  label: string;    // 화면에 보이는 이름 (text 항목에서는 "이 글자를 입력하면 이미지가 뜬다"의 글자)
   img?: string;     // 표에서 값 왼쪽에 붙는 이미지 (파일 id)
 }
 
@@ -31,10 +32,10 @@ export interface FieldDef {
   key: string;                // 저장 이름 (바꾸지 않음)
   label: string;
   type: FieldType;
-  options?: OcOption[];       // select / tier(큰 단계)
+  options?: OcOption[];       // select / tier(큰 단계) / text(값별 이미지)
   sub?: OcOption[];           // tier(세부 단계)
   unit?: string;              // number 뒤에 붙는 단위
-  showImg?: boolean;          // 표에 선택지 이미지를 보일지 (기본 true)
+  showImg?: boolean;          // 표에 이미지를 보일지 (기본 true)
   firstDesc?: boolean;        // 처음 누르면 목록 "아래쪽"부터(= 높은 쪽부터) 보일지
   then?: string;              // 같은 값일 때 이어서 정렬할 입력칸 key
 }
@@ -47,6 +48,7 @@ export interface JobDef {
 }
 
 export interface OcConfig {
+  common: FieldDef[];               // 모든 직업에 들어가는 항목 (나이·생일·키 …) — 이름은 고정이라 여기 없음
   jobs: JobDef[];
   cols: Record<string, string[]>;   // 탭별 표에 보일 항목(순서 포함). 없으면 기본값
 }
@@ -56,9 +58,18 @@ export const uid = (p = 'o') => p + Math.random().toString(36).slice(2, 8);
 /** 처음 쓰는 예시 — 선택지의 id 를 예전 이름과 같게 둬서 이미 등록한 캐릭터 값이 그대로 이어진다 */
 const O = (...p: [string, string?][]): OcOption[] => p.map(([id, label]) => ({ id, label: label ?? id }));
 
+const defaultCommon = (): FieldDef[] => [
+  { key: 'age', label: '나이', type: 'number', unit: '세' },
+  { key: 'birth', label: '생일', type: 'date' },
+  { key: 'height', label: '키', type: 'number', unit: 'cm' },
+  { key: 'weight', label: '체중', type: 'number', unit: 'kg' },
+  { key: 'blood', label: '혈액형', type: 'select', options: O(['A'], ['B'], ['O'], ['AB']) },
+];
+
 export function defaultConfig(): OcConfig {
   return {
     cols: {},
+    common: defaultCommon(),
     jobs: [
       {
         id: 'pro', label: '롤프로게이머',
@@ -101,8 +112,10 @@ export function defaultConfig(): OcConfig {
 }
 
 const readCfg = (): OcConfig => {
-  const v = getSetting<OcConfig | null>(OC_CFG_KEY, null);
-  return v && Array.isArray(v.jobs) ? { jobs: v.jobs, cols: v.cols ?? {} } : defaultConfig();
+  const v = getSetting<Partial<OcConfig> | null>(OC_CFG_KEY, null);
+  if (!v || !Array.isArray(v.jobs)) return defaultConfig();
+  // 공통 항목이 없던 예전 설정이면 예시 값으로 채운다
+  return { jobs: v.jobs, cols: v.cols ?? {}, common: Array.isArray(v.common) ? v.common : defaultCommon() };
 };
 
 export function useOcConfig(): [OcConfig, (c: OcConfig) => void, boolean] {
@@ -123,55 +136,76 @@ export interface OcChar {
   id: string;
   name: string;
   job: string;                       // JobDef.id — 캐릭터당 하나
-  age?: number;
-  birthM?: number; birthD?: number;  // 생일은 'n월 n일' (생년 없이 가능)
-  height?: number; weight?: number;
-  blood?: string;
-  x: Record<string, string>;         // 직업별 입력칸 값 (key → 값. select·tier 는 선택지 id)
+  x: Record<string, string>;         // 모든 항목 값 (key → 값. select·tier 는 선택지 id, date 는 '월-일')
   memo: string;
   img?: string; crop?: CropValue;
+  // ↓ 예전 형식으로 저장된 글의 값 (읽을 때만 쓰고, 수정해서 저장하면 x 로 옮겨진다)
+  age?: number; birthM?: number; birthD?: number; height?: number; weight?: number; blood?: string;
 }
 export const OC_SEED: OcChar[] = [];
-export const BLOODS = ['A', 'B', 'O', 'AB'];
+
+/** 예전에 최상위 값으로 저장되던 공통 항목의 key → 지우는 속성들 */
+export const LEGACY_PROPS: Record<string, (keyof OcChar)[]> = {
+  age: ['age'], height: ['height'], weight: ['weight'], blood: ['blood'], birth: ['birthM', 'birthD'],
+};
+
+/** 항목 값 읽기 (x 에 없으면 예전 형식 값으로 대체) */
+export function rawVal(c: OcChar, key: string): string {
+  const v = c.x?.[key];
+  if (v !== undefined && v !== '') return v;
+  switch (key) {
+    case 'age': return c.age !== undefined ? String(c.age) : '';
+    case 'height': return c.height !== undefined ? String(c.height) : '';
+    case 'weight': return c.weight !== undefined ? String(c.weight) : '';
+    case 'blood': return c.blood ?? '';
+    case 'birth': return c.birthM ? `${c.birthM}-${c.birthD ?? ''}` : '';
+  }
+  return '';
+}
+
+/** 캐릭터에게 적용되는 항목 정의 (공통 항목 → 이 캐릭터 직업의 항목 순) */
+export const fieldOf = (cfg: OcConfig, c: OcChar, key: string): FieldDef | undefined =>
+  cfg.common.find(f => f.key === key) ?? jobOf(cfg, c.job)?.fields.find(f => f.key === key);
+
+export const parseMD = (raw: string): { m: number; d: number } => {
+  const [m, d] = raw.split('-');
+  return { m: parseInt(m, 10) || 0, d: parseInt(d, 10) || 0 };
+};
 
 /* ---------- 표의 열 ---------- */
-export type ColType = FieldType | 'birth' | 'job' | 'blood';
+export type ColType = FieldType | 'job';
 export interface Col {
-  key: string; label: string; type: ColType;
+  key: string;          // 'name' · 'job' · 'x:<항목 key>'
+  label: string; type: ColType;
   unit?: string;
-  field?: FieldDef;     // 'x:...' 열이 따라가는 입력칸 정의 (여러 직업에 같은 key 가 있으면 첫 번째)
+  field?: FieldDef;     // 'x:...' 열이 따라가는 항목 정의 (여러 곳에 같은 key 가 있으면 첫 번째)
 }
 
-const COMMON: Col[] = [
-  { key: 'name', label: '이름', type: 'text' },
-  { key: 'age', label: '나이', type: 'number', unit: '세' },
-  { key: 'birth', label: '생일', type: 'birth' },
-  { key: 'height', label: '키', type: 'number', unit: 'cm' },
-  { key: 'weight', label: '체중', type: 'number', unit: 'kg' },
-  { key: 'blood', label: '혈액형', type: 'blood' },
-];
+const NAME: Col = { key: 'name', label: '이름', type: 'text' };
+const mk = (f: FieldDef): Col => ({ key: 'x:' + f.key, label: f.label, type: f.type, unit: f.unit, field: f });
 
-function fieldCols(jobs: JobDef[]): Col[] {
-  const seen = new Map<string, Col>();
-  jobs.forEach(j => j.fields.forEach(f => {
-    if (!seen.has(f.key)) seen.set(f.key, { key: 'x:' + f.key, label: f.label, type: f.type, unit: f.unit, field: f });
-  }));
-  return [...seen.values()];
-}
-
-/** 탭에서 고를 수 있는 모든 열 ('all' 탭은 모든 직업의 입력칸을 합쳐서) */
+/** 탭에서 고를 수 있는 모든 열 ('all' 탭은 모든 직업의 입력칸을 합쳐서). 맨 앞은 항상 이름 */
 export function allCols(cfg: OcConfig, tab: string): Col[] {
-  if (tab === 'all') return [...COMMON, { key: 'job', label: '직업', type: 'job' }, ...fieldCols(cfg.jobs)];
+  const common = cfg.common.map(mk);
+  const taken = new Set(cfg.common.map(f => f.key));
+  const fromJobs = (jobs: JobDef[]): Col[] => {
+    const seen = new Map<string, Col>();
+    jobs.forEach(j => j.fields.forEach(f => { if (!taken.has(f.key) && !seen.has(f.key)) seen.set(f.key, mk(f)); }));
+    return [...seen.values()];
+  };
+  if (tab === 'all') return [NAME, ...common, { key: 'job', label: '직업', type: 'job' }, ...fromJobs(cfg.jobs)];
   const j = jobOf(cfg, tab);
-  return [...COMMON, ...fieldCols(j ? [j] : [])];
+  return [NAME, ...common, ...fromJobs(j ? [j] : [])];
 }
 
-/** 아무것도 설정하지 않았을 때 보이는 열 */
+/** 아무것도 설정하지 않았을 때 보이는 열 (이름 제외) */
 export function defaultKeys(cfg: OcConfig, tab: string): string[] {
-  const common = COMMON.map(c => c.key);
+  const common = cfg.common.map(f => 'x:' + f.key);
   if (tab === 'all') return [...common, 'job'];
-  return [...common, ...(jobOf(cfg, tab)?.fields ?? []).map(f => 'x:' + f.key)];
+  return [...common, ...(jobOf(cfg, tab)?.fields ?? []).filter(f => !cfg.common.some(c => c.key === f.key)).map(f => 'x:' + f.key)];
 }
+
+const LEGACY_COL = new Set(['age', 'birth', 'height', 'weight', 'blood']);   // 예전 설정에 저장된 열 이름
 
 /** 지금 표에 보이는 열 — 이름은 항상 맨 앞 */
 export function visibleCols(cfg: OcConfig, tab: string): Col[] {
@@ -179,7 +213,8 @@ export function visibleCols(cfg: OcConfig, tab: string): Col[] {
   const saved = cfg.cols?.[tab];
   const keys = saved && saved.length ? saved : defaultKeys(cfg, tab);
   const out: Col[] = [all[0]];
-  keys.forEach(k => {
+  keys.forEach(k0 => {
+    const k = LEGACY_COL.has(k0) ? 'x:' + k0 : k0;
     if (k === 'name') return;
     const c = all.find(x => x.key === k);
     if (c && !out.includes(c)) out.push(c);
@@ -193,62 +228,59 @@ export interface CellVal { text: string; imgs: string[] }
 /** 표(또는 상세)에 보일 글자와 이미지 */
 export function cell(c: OcChar, col: Col, cfg: OcConfig): CellVal {
   const none: CellVal = { text: '', imgs: [] };
-  if (col.type === 'birth') {
-    if (c.birthM && c.birthD) return { text: `${c.birthM}월 ${c.birthD}일`, imgs: [] };
-    return { text: c.birthM ? `${c.birthM}월` : '', imgs: [] };
-  }
+  if (col.key === 'name') return { text: c.name, imgs: [] };
   if (col.type === 'job') return { text: jobOf(cfg, c.job)?.label ?? '', imgs: [] };
-  if (!col.key.startsWith('x:')) {
-    const v = (c as unknown as Record<string, string | number | undefined>)[col.key];
-    if (v === undefined || v === null || v === '') return none;
-    return { text: col.unit ? `${v}${col.unit}` : String(v), imgs: [] };
-  }
-  // 직업별 입력칸 — 이 캐릭터 자신의 직업 정의로 읽는다 (전체 탭에서도 정확하게)
+  // 이 캐릭터 자신에게 적용되는 정의로 읽는다 (전체 탭에서도 정확하게)
   const key = col.key.slice(2);
-  const f = jobOf(cfg, c.job)?.fields.find(x => x.key === key);
-  const raw = c.x?.[key];
-  if (!f || raw === undefined || raw === '') return none;
+  const f = fieldOf(cfg, c, key);
+  const raw = rawVal(c, key);
+  if (!f || raw === '') return none;
   const showImg = f.showImg !== false;
-  if (f.type === 'number') return { text: f.unit ? `${raw}${f.unit}` : raw, imgs: [] };
-  if (f.type === 'select') {
-    const o = f.options?.find(x => x.id === raw);
-    return o ? { text: o.label, imgs: showImg && o.img ? [o.img] : [] } : none;
+  switch (f.type) {
+    case 'number': return { text: f.unit ? `${raw}${f.unit}` : raw, imgs: [] };
+    case 'date': {
+      const { m, d } = parseMD(raw);
+      return { text: m && d ? `${m}월 ${d}일` : m ? `${m}월` : '', imgs: [] };
+    }
+    case 'select': {
+      const o = f.options?.find(x => x.id === raw);
+      return o ? { text: o.label, imgs: showImg && o.img ? [o.img] : [] } : none;
+    }
+    case 'tier': {
+      const big = f.options?.find(x => x.id === raw);
+      if (!big) return none;
+      const sub = f.sub?.find(x => x.id === c.x?.[key + SUB]);
+      const imgs = showImg ? ([big.img, sub?.img].filter(Boolean) as string[]) : [];
+      return { text: sub ? `${big.label} ${sub.label}` : big.label, imgs };
+    }
+    default: {   // text — 같은 글자로 등록된 이미지가 있으면 같이 보임
+      const norm = raw.trim().toLowerCase();
+      const o = f.options?.find(x => x.label.trim().toLowerCase() === norm);
+      return { text: raw, imgs: showImg && o?.img ? [o.img] : [] };
+    }
   }
-  if (f.type === 'tier') {
-    const big = f.options?.find(x => x.id === raw);
-    if (!big) return none;
-    const sub = f.sub?.find(x => x.id === c.x?.[key + SUB]);
-    const imgs = showImg ? [big.img, sub?.img].filter(Boolean) as string[] : [];
-    return { text: sub ? `${big.label} ${sub.label}` : big.label, imgs };
-  }
-  return { text: raw, imgs: [] };
 }
 
 /** 정렬에 쓰는 값 — 비어 있으면 null (항상 맨 아래) */
 export function sortVal(c: OcChar, col: Col, cfg: OcConfig): number | string | null {
-  if (col.type === 'birth') return c.birthM ? c.birthM * 100 + (c.birthD ?? 0) : null;
+  if (col.key === 'name') return c.name || null;
   if (col.type === 'job') { const i = cfg.jobs.findIndex(j => j.id === c.job); return i < 0 ? null : i; }
-  if (col.type === 'blood') { const i = BLOODS.indexOf(c.blood ?? ''); return i < 0 ? null : i; }
-  if (!col.key.startsWith('x:')) {
-    const v = (c as unknown as Record<string, string | number | undefined>)[col.key];
-    if (v === undefined || v === null || v === '') return null;
-    if (col.type === 'number') { const n = Number(v); return Number.isFinite(n) ? n : null; }
-    return String(v);
-  }
   const key = col.key.slice(2);
-  const raw = c.x?.[key];
-  if (raw === undefined || raw === '') return null;
+  const raw = rawVal(c, key);
+  if (raw === '') return null;
   const f = col.field;
-  if (col.type === 'number') { const n = Number(raw); return Number.isFinite(n) ? n : null; }
-  if (col.type === 'select') { const i = (f?.options ?? []).findIndex(o => o.id === raw); return i < 0 ? null : i; }
-  if (col.type === 'tier') {
-    const bi = (f?.options ?? []).findIndex(o => o.id === raw);
-    if (bi < 0) return null;
-    const si = (f?.sub ?? []).findIndex(o => o.id === c.x?.[key + SUB]);
-    return bi * 1000 + (si + 1);     // 큰 단계 먼저, 같으면 세부 단계 (세부 없음 = 가장 낮음)
+  switch (col.type) {
+    case 'number': { const n = Number(raw); return Number.isFinite(n) ? n : null; }
+    case 'date': { const { m, d } = parseMD(raw); return m ? m * 100 + d : null; }
+    case 'select': { const i = (f?.options ?? []).findIndex(o => o.id === raw); return i < 0 ? null : i; }
+    case 'tier': {
+      const bi = (f?.options ?? []).findIndex(o => o.id === raw);
+      if (bi < 0) return null;
+      const si = (f?.sub ?? []).findIndex(o => o.id === c.x?.[key + SUB]);
+      return bi * 1000 + (si + 1);     // 큰 단계 먼저, 같으면 세부 단계 (세부 없음 = 가장 낮음)
+    }
+    default: { const t = cell(c, col, cfg).text; return t === '' ? null : t; }
   }
-  const t = cell(c, col, cfg).text;
-  return t === '' ? null : t;
 }
 
 /** 처음 눌렀을 때 방향 — 숫자는 높은 순, 선택·티어는 설정에 따라, 나머지는 앞에서부터 */

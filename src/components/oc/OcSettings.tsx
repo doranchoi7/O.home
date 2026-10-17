@@ -17,6 +17,7 @@ function swap<T>(arr: T[], i: number, d: number) {
 const TYPE_OPTS = [
   { value: 'text', label: '글자' },
   { value: 'number', label: '숫자' },
+  { value: 'date', label: '날짜 (n월 n일)' },
   { value: 'select', label: '선택형 (드롭다운)' },
   { value: 'tier', label: '티어형 (큰 단계 + 세부 단계)' },
 ];
@@ -38,7 +39,9 @@ function Thumb({ img, onPick, onClear }: { img?: string; onPick: (f: File) => vo
 }
 
 /* ---------- 선택지 목록 (순서 = 정렬 순서) ---------- */
-function OptionList({ title, items, onChange }: { title: string; items: OcOption[]; onChange: (v: OcOption[]) => void }) {
+function OptionList({ title, items, onChange, ordered = true, addHint }: {
+  title: string; items: OcOption[]; onChange: (v: OcOption[]) => void; ordered?: boolean; addHint?: string;
+}) {
   const toast = useToast();
   const [quick, setQuick] = useState('');
   const set = (i: number, p: Partial<OcOption>) => onChange(items.map((o, k) => (k === i ? { ...o, ...p } : o)));
@@ -54,18 +57,18 @@ function OptionList({ title, items, onChange }: { title: string; items: OcOption
   };
   return (
     <div className="set-opts">
-      <div className="set-opts-h">{title} <small>위 → 아래 순서가 정렬 순서예요</small></div>
+      <div className="set-opts-h">{title}{ordered && <small>위 → 아래 순서가 정렬 순서예요</small>}</div>
       {items.map((o, i) => (
         <div className="set-opt" key={o.id}>
           <Thumb img={o.img} onPick={f => upload(i, f)} onClear={() => set(i, { img: undefined })} />
           <KInput value={o.label} onChange={e => set(i, { label: e.target.value })} />
-          <button type="button" className="mv" onClick={() => move(i, -1)}>▲</button>
-          <button type="button" className="mv" onClick={() => move(i, 1)}>▼</button>
+          {ordered && <button type="button" className="mv" onClick={() => move(i, -1)}>▲</button>}
+          {ordered && <button type="button" className="mv" onClick={() => move(i, 1)}>▼</button>}
           <button type="button" className="mv del" onClick={() => onChange(items.filter((_, k) => k !== i))}>✕</button>
         </div>
       ))}
       <div className="set-quick">
-        <KInput value={quick} placeholder="추가할 이름 (여러 개는 쉼표로: 탑, 정글, 미드)"
+        <KInput value={quick} placeholder={addHint ?? '추가할 이름 (여러 개는 쉼표로: 탑, 정글, 미드)'}
           onChange={e => setQuick(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addQuick(); } }} />
         <button type="button" className="btn btn-ghost" onClick={addQuick}>＋ 추가</button>
@@ -80,6 +83,7 @@ function FieldEditor({ f, onChange, onMove, onDel }: {
 }) {
   const p = (patch: Partial<FieldDef>) => onChange({ ...f, ...patch });
   const isPick = f.type === 'select' || f.type === 'tier';
+  const isText = f.type === 'text';
   return (
     <div className="set-field">
       <div className="set-row">
@@ -103,6 +107,15 @@ function FieldEditor({ f, onChange, onMove, onDel }: {
         <div className="set-row"><span className="set-l">단위</span>
           <KInput value={f.unit ?? ''} placeholder="예: 학년, cm (없으면 비워두기)" onChange={e => p({ unit: e.target.value })} />
         </div>
+      )}
+      {isText && (
+        <>
+          <OptionList ordered={false} title="값별 이미지 (선택) — 같은 글자를 입력하면 표에서 왼쪽에 이미지가 떠요"
+            addHint="이미지를 달 글자 (예: T1, 젠지 — 여러 개는 쉼표로)"
+            items={f.options ?? []} onChange={v => p({ options: v })} />
+          <label className="set-chk"><input type="checkbox" checked={f.showImg !== false}
+            onChange={e => p({ showImg: e.target.checked })} /> 표에서 값 왼쪽에 이미지 보이기</label>
+        </>
       )}
       {isPick && (
         <>
@@ -218,46 +231,77 @@ function JobEditor({ d, j, ji, open, onToggle, upd, chars }: {
   );
 }
 
+/* ---------- 공통 항목 (모든 직업에 들어가는 칸) ---------- */
+function CommonEditor({ d, upd }: { d: OcConfig; upd: (fn: (n: OcConfig) => void) => void }) {
+  return (
+    <div className="set-card">
+      <div className="set-card-h"><b>공통 항목</b><small className="set-n">이름은 항상 있고, 나머지는 자유롭게 지우고 만들 수 있어요</small></div>
+      <div className="set-body">
+        {d.common.map((f, fi) => (
+          <FieldEditor key={f.key} f={f}
+            onChange={nf => upd(n => { n.common[fi] = nf; })}
+            onMove={dlt => upd(n => swap(n.common, fi, dlt))}
+            onDel={() => upd(n => { n.common.splice(fi, 1); })} />
+        ))}
+        <button type="button" className="btn btn-ghost" style={{ justifySelf: 'start' }}
+          onClick={() => upd(n => {
+            const key = uid('f');
+            n.common.push({ key, label: '새 항목', type: 'text' });
+            Object.keys(n.cols).forEach(t => n.cols[t].push('x:' + key));   // 저장해 둔 표 설정에도 바로 보이게
+          })}>＋ 공통 항목 추가</button>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- 설정 화면 전체 ---------- */
 export function OcSettings({ cfg, chars, onSave, onCancel }: {
   cfg: OcConfig; chars: OcChar[]; onSave: (c: OcConfig) => void; onCancel: () => void;
 }) {
   const toast = useToast();
   const [d, setD] = useState<OcConfig>(() => clone(cfg));
-  const [openJob, setOpenJob] = useState<string | null>(null);
+  const [openJobs, setOpenJobs] = useState<string[]>(() => (cfg.jobs[0] ? [cfg.jobs[0].id] : []));
   const upd = (fn: (n: OcConfig) => void) => setD(s => { const n = clone(s); fn(n); return n; });
+  const toggle = (id: string) => setOpenJobs(o => (o.includes(id) ? o.filter(x => x !== id) : [...o, id]));
 
   const save = () => {
     if (d.jobs.some(j => !j.label.trim())) { toast('탭 이름이 비어 있는 직업이 있어요'); return; }
-    // 이름이 비어 있는 입력칸/선택지는 정리
+    // 이름이 비어 있는 항목/선택지는 정리
     const clean = clone(d);
-    clean.jobs.forEach(j => {
-      j.fields = j.fields.filter(f => f.label.trim());
-      j.fields.forEach(f => {
+    const tidy = (fs: FieldDef[]) => {
+      fs.forEach(f => {
         if (f.options) f.options = f.options.filter(o => o.label.trim());
         if (f.sub) f.sub = f.sub.filter(o => o.label.trim());
       });
-    });
+      return fs.filter(f => f.label.trim());
+    };
+    clean.common = tidy(clean.common);
+    clean.jobs.forEach(j => { j.fields = tidy(j.fields); });
     onSave(clean);
   };
 
   return (
     <div className="oc-set">
       <p className="set-note">
-        선택지 이름을 바꿔도 이미 등록한 캐릭터는 그대로 따라가요. 선택지를 <b>지우면</b> 그 값을 쓰던 캐릭터는 값이 비어요.
+        <b>이름을 뺀 모든 항목</b>을 지우고, 이름을 바꾸고, 새로 만들 수 있어요. 선택지 이름을 바꿔도 이미 등록한 캐릭터는 그대로 따라가고,
+        선택지를 <b>지우면</b> 그 값을 쓰던 캐릭터는 값이 비어요. 이미지는 선택지·값 옆의 <b>＋ 네모</b>를 눌러 올려요.
       </p>
 
-      <h3 className="set-h">① 직업 탭과 입력칸</h3>
+      <h3 className="set-h">① 공통 항목</h3>
+      <CommonEditor d={d} upd={upd} />
+
+      <h3 className="set-h" style={{ marginTop: 18 }}>② 직업 탭과 직업별 입력칸</h3>
+      <p className="set-note">직업 이름 왼쪽의 ▸ 를 누르면 펼쳐져요.</p>
       {d.jobs.map((j, ji) => (
         <JobEditor key={j.id} d={d} j={j} ji={ji} chars={chars} upd={upd}
-          open={openJob === j.id} onToggle={() => setOpenJob(openJob === j.id ? null : j.id)} />
+          open={openJobs.includes(j.id)} onToggle={() => toggle(j.id)} />
       ))}
       <button type="button" className="btn btn-ghost" style={{ justifySelf: 'start' }}
-        onClick={() => { const id = uid('j'); upd(n => { n.jobs.push({ id, label: '새 직업', fields: [] }); }); setOpenJob(id); }}>
+        onClick={() => { const id = uid('j'); upd(n => { n.jobs.push({ id, label: '새 직업', fields: [] }); }); setOpenJobs(o => [...o, id]); }}>
         ＋ 직업(탭) 추가
       </button>
 
-      <h3 className="set-h" style={{ marginTop: 18 }}>② 탭마다 표에 보일 항목</h3>
+      <h3 className="set-h" style={{ marginTop: 18 }}>③ 탭마다 표에 보일 항목</h3>
       <p className="set-note">체크한 항목만 표에 보이고, ▲▼로 순서를 바꿔요. (캐릭터를 눌러서 펼치면 항목이 전부 보여요)</p>
       <ColsEditor d={d} tab="all" label="전체" upd={upd} />
       {d.jobs.map(j => <ColsEditor key={j.id} d={d} tab={j.id} label={j.label || '(이름 없음)'} upd={upd} />)}
