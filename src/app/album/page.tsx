@@ -166,7 +166,9 @@ function AlbumPageInner() {
   // 이 섹션 자리만 교체 — 다른 앨범의 그림이 지워지지 않는다
   const setPosts = sectionSetter(allPosts, sec.id, setAllPosts);
   const { catsOf } = useTypeCats();
-  const cats = catsOf('album', sec.id);
+  // 탭 목록을 못 읽어도 페이지는 뜨게 — 그때는 「전체」만 보인다
+  let cats: { id: string; label: string }[] = [];
+  try { cats = (catsOf('album', sec.id) ?? []) as { id: string; label: string }[]; } catch { cats = []; }
 
   const [tab, setTab] = useState('');
   const curTab = cats.some(c => c.id === tab) ? tab : '';
