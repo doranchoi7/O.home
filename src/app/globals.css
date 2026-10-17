@@ -1812,7 +1812,7 @@ body.edit-on .main-grid.gridlines .wgt{outline-offset:0}
 .g-head { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .08em; }
 .g-machine { position: relative; left: -3.3%; width: 100%; aspect-ratio: 1 / 1; }   /* body.png의 가로:세로 비율로 */
 .g-machine img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
-.g-machine .g-pile { position: absolute; left: 31%; top: 29.5%; width: 44%; aspect-ratio: 2 / 1; }
+.g-machine .g-pile { position: absolute; left: 31%; top: 30.5%; width: 44%; aspect-ratio: 2 / 1; }
 .g-machine .g-pile img.g-pb { position: absolute; inset: auto; width: 22%; height: auto; transform: rotate(var(--r)) scaleX(var(--f)); }
 .g-machine .g-pile.shake img.g-pb { animation: g-jig .18s linear 7; }
 .g-machine img.g-handle { inset: auto; left: 38%; top: 44%; width: 24%; height: auto; }   /* 원래 손잡이에 겹치게 */
