@@ -458,3 +458,122 @@ export function BannerEditor({ conf, onSaved, onClose }: {
     </div>
   );
 }
+
+/* ---------- 배너(세로 나열) — settings: slides[] / wPx / hPx / fit / rounded / gap ----------
+   이미지를 여러 장 넣으면 전부 세로로 나열된다. 링크는 이미지마다, 크기·둥근 모서리·간격은 전체에 일괄 적용 */
+export function BannersEditor({ conf, onClose }: { conf: WidgetConf; onClose?: () => void }) {
+  const { updateWidget } = useMainStore();
+  const toast = useToast();
+  const del = useConfirmDelete();
+  const [cropFor, setCropFor] = useState<string | null>(null);
+  const [swapFor, setSwapFor] = useState<string | null>(null);
+  const rounded = (conf.settings.rounded as boolean) ?? true;
+  const fit = (conf.settings.fit as 'cover' | 'contain') ?? 'cover';
+  const gap = (conf.settings.gap as number) ?? 8;
+  const wPx = conf.settings.wPx as number | undefined;
+  const hPx = conf.settings.hPx as number | undefined;
+  // 세로 크기를 정했을 때만 크롭이 의미 있다 (안 정하면 원본 비율 그대로)
+  const ratio = hPx ? (wPx ?? conf.w ?? 400) / hPx : 10;
+  const slides = decoSlides(conf.settings);
+  const inputId = `bnsF-${conf.id}`;
+
+  const set = (patch: Record<string, unknown>) =>
+    updateWidget(conf.id, { settings: { ...conf.settings, ...patch } }, { persist: true });
+  const setSlides = (list: DecoSlide[]) =>
+    set({ slides: list, imgId: undefined, crop: undefined, link: undefined });
+  const patchSlide = (id: string, p: Partial<DecoSlide>) =>
+    setSlides(slides.map(x => (x.id === id ? { ...x, ...p } : x)));
+
+  const row = (sl: DecoSlide, i: number) => (
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '7px 0', borderBottom: '1px dashed var(--line)', width: '100%' }}>
+      {slides.length > 1 && <span className="drag-h">⠿</span>}
+      <div style={{ width: 150, aspectRatio: String(ratio), minHeight: 22, borderRadius: 6, overflow: 'hidden', position: 'relative', flexShrink: 0, border: '1.5px dashed var(--line)', cursor: 'var(--cur-pointer,pointer)' }}
+        onClick={() => { setSwapFor(sl.id); document.getElementById(inputId)?.click(); }}>
+        <CroppedBlobImg fileRef={sl.imgId} crop={fit === 'contain' || !hPx ? undefined : sl.crop} ph="" />
+      </div>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flex: 1, minWidth: 0 }}>
+        <KInput placeholder="링크 (선택 — 클릭 시 이동)" value={sl.link ?? ''}
+          onChange={e => patchSlide(sl.id, { link: normalizeInternalLink(e.target.value) || undefined })} />
+        {fit === 'cover' && !!hPx && (
+          <button className="btn btn-ghost" style={{ height: 24, padding: '0 9px', fontSize: 10, whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}
+            onClick={() => setCropFor(sl.id)}>✂ 위치</button>
+        )}
+      </div>
+      <button className="btn btn-ghost" style={{ height: 24, padding: '0 11px', fontSize: 10.5, display: 'inline-flex', alignItems: 'center' }}
+        onClick={() => del.ask(`${i + 1}번째 배너를 위젯에서 빼시겠습니까?`,
+          () => setSlides(slides.filter(x => x.id !== sl.id)),
+          '원본 파일은 지워지지 않습니다.')}>DELETE</button>
+    </div>
+  );
+
+  const cropTarget = slides.find(x => x.id === cropFor);
+
+  return (
+    <div style={{ display: 'grid', gap: 9 }}>
+      <input id={inputId} type="file" accept="image/*" multiple style={{ display: 'none' }}
+        onChange={async e => {
+          const files = Array.from(e.target.files ?? []);
+          e.target.value = '';
+          const target = swapFor;
+          setSwapFor(null);
+          if (!files.length) return;
+          if (target) {
+            patchSlide(target, { imgId: await putBlob(files[0]), crop: undefined });
+            if (fit === 'cover' && hPx) setCropFor(target);
+            toast('이미지가 교체되었습니다');
+            return;
+          }
+          const added: DecoSlide[] = [];
+          for (const f of files) added.push({ id: `b${Date.now().toString(36)}-${slides.length + added.length}`, imgId: await putBlob(f) });
+          setSlides([...slides, ...added]);
+          if (added.length === 1 && fit === 'cover' && hPx) setCropFor(added[0].id);
+          toast(added.length > 1 ? `배너 ${added.length}장이 추가되었습니다` : '배너가 추가되었습니다');
+        }} />
+
+      {slides.length === 0
+        ? (
+          <div className="ph" style={{ width: 200, aspectRatio: String(ratio), minHeight: 28, borderRadius: 8, border: '1.5px dashed var(--line)', cursor: 'var(--cur-pointer,pointer)' }}
+            onClick={() => { setSwapFor(null); document.getElementById(inputId)?.click(); }}>
+            <span style={{ fontSize: 9 }}>BANNER</span>
+          </div>
+        )
+        : <DragList items={slides} keyOf={sl => sl.id} onReorder={setSlides} render={row} />}
+
+      {/* 크기 — 한 번 정하면 모든 배너에 똑같이 적용 */}
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <span className="cp-lb">크기</span>
+        <KInput placeholder="가로 px (비우면 위젯 폭)" value={String(wPx ?? '')}
+          onChange={e => { const n = parseInt(e.target.value, 10); set({ wPx: Number.isFinite(n) && n > 0 ? Math.min(n, 2000) : undefined }); }}
+          style={{ width: 150 }} />
+        <span style={{ color: 'var(--faint)', fontSize: 11 }}>×</span>
+        <KInput placeholder="세로 px (비우면 원본 비율)" value={String(hPx ?? '')}
+          onChange={e => { const n = parseInt(e.target.value, 10); set({ hPx: Number.isFinite(n) && n > 0 ? Math.min(n, 2000) : undefined }); }}
+          style={{ width: 160 }} />
+      </div>
+
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+        <span className="cp-lb">표시</span>
+        <div className="mini-seg">
+          <button className={fit === 'cover' ? 'on' : ''} onClick={() => set({ fit: undefined })}>꽉 채움 (잘림)</button>
+          <button className={fit === 'contain' ? 'on' : ''} onClick={() => set({ fit: 'contain' })}>비율 유지 (안 잘림)</button>
+        </div>
+        <span className="cp-lb">간격</span>
+        <KStep value={gap} min={0} max={60} step={2} suffix="px" onChange={v => set({ gap: v })} />
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <button className="btn btn-ghost" style={{ padding: '4px 10px', fontSize: 10.5 }}
+          onClick={() => { setSwapFor(null); document.getElementById(inputId)?.click(); }}>＋ 이미지 추가</button>
+        <KCheck label="둥근 모서리" checked={rounded} onChange={v => set({ rounded: v })} />
+        {onClose && <button className="btn btn-ghost" style={{ marginLeft: 'auto' }} onClick={onClose}>CLOSE</button>}
+      </div>
+
+      {cropTarget && (
+        <DecoCrop sl={cropTarget} ratio={ratio}
+          onClose={() => setCropFor(null)}
+          onApply={c => { patchSlide(cropTarget.id, { crop: c }); setCropFor(null); }} />
+      )}
+      {del.element}
+    </div>
+  );
+}
