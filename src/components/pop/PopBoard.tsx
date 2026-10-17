@@ -19,16 +19,15 @@ import {
 
 const clamp = (n: number) => Math.max(0, Math.min(100, n));
 
-/** 디데이 문구 — 날짜가 있으면 "다시 또 만나 D+123", 없으면 문구만 */
-function ddayText(label: string, date: string): string {
+/** 디데이 — 날짜가 있으면 D+123, 없으면 빈 문자열 */
+function ddayText(date: string): string {
   const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec((date ?? '').trim());
-  if (!m) return label;
+  if (!m) return '';
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const d = new Date(+m[1], +m[2] - 1, +m[3]);
   const diff = Math.round((today.getTime() - d.getTime()) / 86400000);
-  const tag = diff > 0 ? `D+${diff}` : diff < 0 ? `D${diff}` : 'D-Day';
-  return label ? `${label} ${tag}` : tag;
+  return diff > 0 ? `D+${diff}` : diff < 0 ? `D${diff}` : 'D-Day';
 }
 
 /** 이름 뒤 체크마크 */
@@ -107,7 +106,7 @@ function PopView({ room }: { room: PopRoom }) {
       {/* 상단 고정 헤더 */}
       <div className="pp-head" style={meta}>
         <div className="pp-title">{room.title || room.name}<Check ink={ink} /></div>
-        <div className="pp-sub">{ddayText(room.ddayLabel, room.ddayDate)}</div>
+        {ddayText(room.ddayDate) && <div className="pp-sub">{ddayText(room.ddayDate)}</div>}
       </div>
 
       {/* 채팅 내역 — 여기만 스크롤 */}
@@ -181,7 +180,6 @@ function PopScreenSettings({ open, room, onClose, onApply }: {
   const boxRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; y: number; fx: number; fy: number } | null>(null);
   const [title, setTitle] = useState('');
-  const [label, setLabel] = useState('');
   const [date, setDate] = useState('');
   const [ink, setInk] = useState<'white' | 'black'>('white');
   const [bgImage, setBgImage] = useState('');
@@ -192,7 +190,6 @@ function PopScreenSettings({ open, room, onClose, onApply }: {
   useEffect(() => {
     if (!open) return;
     setTitle(room.title ?? '');
-    setLabel(room.ddayLabel ?? '');
     setDate(room.ddayDate ?? '');
     setInk(room.ink ?? 'white');
     setBgImage(room.bgImage ?? '');
@@ -228,7 +225,7 @@ function PopScreenSettings({ open, room, onClose, onApply }: {
 
   const apply = () => {
     onApply({
-      title: title.trim(), ddayLabel: label.trim(), ddayDate: date.trim(), ink, bgImage,
+      title: title.trim(), ddayDate: date.trim(), ink, bgImage,
       bgFocus: { x: Math.round(focus.x), y: Math.round(focus.y) },
     });
     onClose();
@@ -246,15 +243,9 @@ function PopScreenSettings({ open, room, onClose, onApply }: {
           <label className="k-label">헤더 이름 (예: 최현준임)</label>
           <KInput value={title} onChange={e => setTitle(e.target.value)} />
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <div style={{ flex: '1 1 140px' }}>
-            <label className="k-label">디데이 문구</label>
-            <KInput value={label} placeholder="다시 또 만나" onChange={e => setLabel(e.target.value)} />
-          </div>
-          <div style={{ flex: '1 1 140px' }}>
-            <label className="k-label">디데이 날짜</label>
-            <KInput value={date} placeholder="2026-04-05" onChange={e => setDate(e.target.value)} />
-          </div>
+        <div>
+          <label className="k-label">디데이 날짜 (비우면 표시 안 됨)</label>
+          <KInput value={date} placeholder="2026-04-05" onChange={e => setDate(e.target.value)} />
         </div>
 
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
