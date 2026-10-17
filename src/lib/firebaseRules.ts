@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 // 설치 화면에서 복사해 쓰는 Firebase 보안 규칙 — 원본: firebase/firestore.rules · firebase/storage.rules
 // (원본을 고치면 이 파일도 함께 갱신)
 
@@ -40,7 +40,7 @@ service cloud.firestore {
         'trpg_logs', 'trpg_log_bodies', 'trpg_chars', 'dotori', 'playlog', 'rp_rooms', 'threads', 'series',
         'diary', 'memos', 'commissions', 'applicants', 'moods', 'comments', 'qa_answers', 'rp_messages',
         'notifications',
-        'twitter', 'lck', 'couple', 'oc', 'pushoong', 'kakaotalk', 'style'
+        'twitter', 'lck', 'couple', 'oc', 'pushoong', 'kakaotalk', 'style', 'album'
       ];
     }
 

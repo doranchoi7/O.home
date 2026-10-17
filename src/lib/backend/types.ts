@@ -130,6 +130,7 @@ export const COLLECTION_OF: Record<string, string> = {
   'ohome.pushoong.v1': 'pushoong',
   'ohome.kakaotalk.v1': 'kakaotalk',
   'ohome.style.v1': 'style',
+  'ohome.album.v1': 'album',
 };
 
 export const CONTENT_COLLECTIONS = Object.values(COLLECTION_OF);
