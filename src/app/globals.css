@@ -1847,3 +1847,26 @@ body.edit-on .main-grid.gridlines .wgt{outline-offset:0}
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+/* 가챠 볼 — 배출구에서 나와 앞으로 떨어진다 */
+.gacha .g-machine img.g-ball {
+  inset: auto;
+  width: 9%; height: auto;
+  left: 48.8%; top: 80.6%;
+  transform-origin: 50% 50%;
+}
+.gacha .g-machine img.g-ball.fall {
+  animation: gtoy-fall 1.2s ease-in forwards;
+}
+.gacha .g-machine img.g-ball.pop {
+  transform: translate(0, 70%) scale(1.3) rotate(200deg);
+  animation: gtoy-pop .8s ease-out forwards;
+}
+@keyframes gtoy-fall {
+  from { transform: translate(0, 0) scale(.85) rotate(0deg); }
+  to   { transform: translate(0, 70%) scale(1.3) rotate(200deg); }
+}
+@keyframes gtoy-pop {
+  from { transform: translate(0, 70%) scale(1.3) rotate(200deg); opacity: 1; }
+  to   { transform: translate(0, 70%) scale(2.2) rotate(200deg); opacity: 0; }
+}
