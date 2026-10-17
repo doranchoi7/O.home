@@ -35,6 +35,7 @@ export const FEATURES: { href: string; label: string }[] = [
   { href: '/style', label: '게임 코디 백업' },
   { href: '/album', label: '앨범' },
   { href: '/photocard', label: '포토카드' },
+  { href: '/pop', label: '팝 백업' },
   { href: '/guest', label: '방명록' },
   { href: '/intro', label: '소개' },
 ];
