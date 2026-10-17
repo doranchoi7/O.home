@@ -20,10 +20,6 @@ import { useToast } from '@/components/ui/Toast';
 
 type Focus = { x: number; y: number };
 const clamp = (n: number) => Math.max(0, Math.min(100, n));
-const miniBtn: React.CSSProperties = {
-  width: 22, height: 22, borderRadius: '50%', background: 'rgba(0,0,0,.55)',
-  color: '#fff', fontSize: 11, lineHeight: 1, display: 'grid', placeItems: 'center',
-};
 
 /** 카드 안의 이미지 — 지정한 위치가 보이게 잘라서 채운다 */
 function FocusImg({ imgId, focus }: { imgId: string; focus: Focus }) {
@@ -197,6 +193,55 @@ function PhotocardEditor({ item, cats, defaultCat, onClose, onSave }: {
   );
 }
 
+/** 크게 보기 — 카드 모양 그대로 크롭된 사진, ‹ ›로 넘김 */
+function PhotocardViewer({ items, index, onClose, onIndex }: {
+  items: PhotocardItem[]; index: number; onClose: () => void; onIndex: (i: number) => void;
+}) {
+  const p = items[index];
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft' && index > 0) onIndex(index - 1);
+      if (e.key === 'ArrowRight' && index < items.length - 1) onIndex(index + 1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [index, items.length, onClose, onIndex]);
+  if (typeof document === 'undefined' || !p) return null;
+
+  const arrow: React.CSSProperties = {
+    position: 'absolute', top: '50%', transform: 'translateY(-50%)',
+    width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,0,0,.5)',
+    color: '#fff', fontSize: 20, display: 'grid', placeItems: 'center',
+  };
+
+  return createPortal(
+    <div onClick={onClose} style={{
+      position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,.78)',
+      display: 'grid', placeItems: 'center',
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        position: 'relative', width: 'min(88vw, 55vh)', aspectRatio: PHOTOCARD_RATIO,
+        borderRadius: PHOTOCARD_RADIUS, overflow: 'hidden',
+        boxShadow: '0 8px 40px rgba(0,0,0,.5)',
+      }}>
+        <FocusImg imgId={p.imgId} focus={p.focus} />
+      </div>
+      {index > 0 && (
+        <button style={{ ...arrow, left: 16 }}
+          onClick={e => { e.stopPropagation(); onIndex(index - 1); }}>‹</button>
+      )}
+      {index < items.length - 1 && (
+        <button style={{ ...arrow, right: 16 }}
+          onClick={e => { e.stopPropagation(); onIndex(index + 1); }}>›</button>
+      )}
+      <button style={{ ...arrow, top: 28, right: 16, transform: 'none' }}
+        onClick={e => { e.stopPropagation(); onClose(); }}>✕</button>
+    </div>,
+    document.body,
+  );
+}
+
 function PhotocardPageInner() {
   const { user, isAdmin } = useAuth();
   const sec = useSectionParam('photocard');
@@ -291,13 +336,6 @@ function PhotocardPageInner() {
                 cursor: 'var(--cur-pointer,pointer)',
               }}>
               <FocusImg imgId={p.imgId} focus={p.focus} />
-              {isAdmin && (
-                <div onClick={e => e.stopPropagation()}
-                  style={{ position: 'absolute', top: 4, right: 4, display: 'flex', gap: 4 }}>
-                  <button title="수정" style={miniBtn} onClick={() => setEdit(p)}>✎</button>
-                  <button title="삭제" style={miniBtn} onClick={() => setDelPost(p)}>✕</button>
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -310,7 +348,7 @@ function PhotocardPageInner() {
 
       {/* 크게 보기 — 지금 탭에 보이는 그림끼리 ‹ ›로 넘긴다 */}
       {view !== null && visible[view] && (
-        <Lightbox srcs={visible.map(p => p.imgId)} index={view} onClose={() => setView(null)} />
+        <PhotocardViewer items={visible} index={view} onClose={() => setView(null)} onIndex={setView} />
       )}
 
       {edit && (
