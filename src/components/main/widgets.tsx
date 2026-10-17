@@ -2,7 +2,7 @@
 // 메인 위젯 렌더러 (4.0) — DIARY/LATEST/UPCOMING 등은 해당 기능(2·3차) 전까지 데모 데이터
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { WidgetConf, useMainStore, WIDGET_META, decoSlides } from '@/lib/mainStore';
+import { WidgetConf, useMainStore, WIDGET_META, decoSlides, DecoSlide } from '@/lib/mainStore';
 import { useAuth } from '@/lib/auth';
 import { boardEntries, useMenuSettings, buildMenu, canViewHref } from '@/lib/menuStore';
 import { sectionHref, MAIN_SEC, useSections, sectionMenuEntries } from '@/lib/sectionStore';
@@ -12,7 +12,7 @@ import { Modal } from '@/components/ui/Modal';
 import { KTextarea, KSelect, KStep, KCheck } from '@/components/ui/Kit';
 import { ColorField } from '@/components/ui/ColorField';
 import { useFonts } from '@/lib/fontStore';
-import { BannerEditor, BannerSlide, DEMO_SLIDES, DdayEditor, DecoEditor, TodoEditor, TodoSetItem } from '@/components/main/widgetEditors';
+import { BannerEditor, BannerSlide, DEMO_SLIDES, DdayEditor, DecoEditor, BannersEditor, TodoEditor, TodoSetItem } from '@/components/main/widgetEditors';
 import { CroppedBlobImg, CropValue } from '@/components/ui/CropEditor';
 import { useLocalList } from '@/lib/postStore';
 import { RoadItem, ROAD_SEED, BackupPost, BACKUP_SEED } from '@/lib/galleryStore';
@@ -554,6 +554,75 @@ export function DecoWidget({ conf }: { conf: WidgetConf }) {
   );
 }
 
+/* ---------- 배너 (세로 나열) — 이미지 여러 장을 한꺼번에 쭉 보여준다 ---------- */
+function BannerItem({ sl, hPx, fit, rounded, canGo, onGo }: {
+  sl: DecoSlide; hPx?: number; fit: 'cover' | 'contain'; rounded: boolean; canGo: boolean; onGo: () => void;
+}) {
+  // 세로 크기를 안 정했으면 원본 비율 그대로
+  const url = useBlobUrl(hPx ? undefined : sl.imgId);
+  const radius = rounded ? 'var(--radius)' : 0;
+  if (!hPx) {
+    return url
+      // eslint-disable-next-line @next/next/no-img-element
+      ? <img src={url} alt="" draggable={false} onClick={canGo ? onGo : undefined}
+        style={{ width: '100%', height: 'auto', display: 'block', borderRadius: radius, cursor: canGo ? 'var(--cur-pointer,pointer)' : undefined }} />
+      : <div style={{ height: 40, background: 'var(--line)', borderRadius: radius }} />;
+  }
+  return (
+    <div style={{
+      position: 'relative', width: '100%', height: hPx, overflow: 'hidden',
+      borderRadius: fit === 'contain' ? 0 : radius,
+      cursor: fit === 'cover' && canGo ? 'var(--cur-pointer,pointer)' : undefined,
+    }} onClick={fit === 'cover' && canGo ? onGo : undefined}>
+      {fit === 'contain'
+        ? <ContainImg fileRef={sl.imgId} rounded={rounded} onActivate={canGo ? onGo : undefined} />
+        : <CroppedBlobImg fileRef={sl.imgId} crop={sl.crop} ph="" />}
+    </div>
+  );
+}
+
+export function BannersWidget({ conf }: { conf: WidgetConf }) {
+  const { isAdmin } = useAuth();
+  const { editOn } = useMainStore();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  useEditEvent(conf.id, () => setOpen(true));
+  const slides = decoSlides(conf.settings);
+  const rounded = (conf.settings.rounded as boolean) ?? true;
+  const fit = (conf.settings.fit as 'cover' | 'contain') ?? 'cover';
+  const gap = (conf.settings.gap as number) ?? 8;
+  const wPx = conf.settings.wPx as number | undefined;
+  const hPx = conf.settings.hPx as number | undefined;
+  const go = (link?: string) => {
+    if (editOn || !link) return;
+    const l = normalizeInternalLink(link);
+    if (/^https?:\/\//.test(l)) window.open(l, '_blank');
+    else router.push(l);
+  };
+  return (
+    <div style={{
+      width: wPx ? `${wPx}px` : conf.w ? '100%' : 400, maxWidth: '100%',
+      display: 'flex', flexDirection: 'column', gap,
+    }}>
+      {slides.length === 0 && (
+        <div className="ph" style={{ height: hPx ?? 40, borderRadius: rounded ? 'var(--radius)' : 0 }}>
+          <span style={{ fontSize: 10 }}>{isAdmin ? 'BANNER — 편집모드에서 우클릭 → 설정' : ''}</span>
+        </div>
+      )}
+      {slides.map(sl => (
+        <BannerItem key={sl.id} sl={sl} hPx={hPx} fit={fit} rounded={rounded}
+          canGo={!editOn && !!sl.link} onGo={() => go(sl.link)} />
+      ))}
+      <div onClick={e => e.stopPropagation()}>
+        <Modal open={open} onClose={() => setOpen(false)} small title="배너"
+          desc="이미지를 여러 장 넣으면 세로로 쭉 나열됩니다 — 링크는 이미지마다, 크기·둥근 모서리는 전체에 적용">
+          {open && <BannersEditor conf={conf} onClose={() => setOpen(false)} />}
+        </Modal>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- 스티커 메모 미니보드 (4.6) — 읽기 전용 축소 보드, 클릭 시 /memo ---------- */
 export function MemoBoardWidget() {
   const router = useRouter();
@@ -666,6 +735,7 @@ export function renderWidget(conf: WidgetConf) {
     case 'deco': return <DecoWidget conf={conf} />;
     case 'memoboard': return <MemoBoardWidget />;
     case 'apply': return <ApplyWidget conf={conf} />;
+    case 'banners': return <BannersWidget conf={conf} />;
     default: return <div className="panel widget"><h4>{WIDGET_META[conf.type]?.title ?? conf.type}</h4></div>;
   }
 }
