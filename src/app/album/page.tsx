@@ -19,6 +19,10 @@ import { useToast } from '@/components/ui/Toast';
 
 type Focus = { x: number; y: number };
 const clamp = (n: number) => Math.max(0, Math.min(100, n));
+const miniBtn: React.CSSProperties = {
+  width: 22, height: 22, borderRadius: '50%', background: 'rgba(0,0,0,.55)',
+  color: '#fff', fontSize: 11, lineHeight: 1, display: 'grid', placeItems: 'center',
+};
 
 /** 카드 안의 이미지 — 지정한 위치가 보이게 잘라서 채운다 */
 function FocusImg({ imgId, focus }: { imgId: string; focus: Focus }) {
@@ -247,6 +251,13 @@ function AlbumPageInner() {
                 cursor: 'var(--cur-pointer,pointer)',
               }}>
               <FocusImg imgId={p.imgId} focus={p.focus} />
+              {isAdmin && (
+                <div onClick={e => e.stopPropagation()}
+                  style={{ position: 'absolute', top: 4, right: 4, display: 'flex', gap: 4 }}>
+                  <button title="수정" style={miniBtn} onClick={() => setEdit(p)}>✎</button>
+                  <button title="삭제" style={miniBtn} onClick={() => setDelPost(p)}>✕</button>
+                </div>
+              )}
             </div>
           ))}
         </div>
